@@ -112,7 +112,7 @@ root: ''          # 超级管理员 ID
 bt_uin: ''         # 机器人 ID
 napcat:
   ws_uri: ws://localhost:3002    # WebSocket 连接地址
-  ws_token: Chasojoha            # WebSocket 鉴权 Token
+  ws_token: token           # WebSocket 鉴权 Token
   webui_uri: http://localhost:6098  # NapCat WebUI
 ```
 

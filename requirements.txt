@@ -2,7 +2,7 @@
 # 使用方法：pip install -r requirements.txt
 
 # 核心依赖
-ncatbot>=1.0.0
+ncatbot>=4.4.1
 openai>=1.0.0
 pyyaml>=6.0
 

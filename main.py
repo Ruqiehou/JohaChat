@@ -13,7 +13,7 @@ config.set_ws_uri(ws_uri="ws://localhost:3002")
 config.set_ws_token(ws_token="")
 config.set_webui_uri(webui_uri="http://localhost:6098")
 config.set_webui_token(webui_token="")
-runtime_context.bot_uin = 
+runtime_context.bot_uin = 8888888888
 
 bot = BotClient()
 
