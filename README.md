@@ -55,7 +55,7 @@
 ```bash
 # 1. 克隆项目
 git clone <your-repo-url>
-cd "Joha - 副本"
+cd "JohaBot"
 
 # 2. 安装依赖
 pip install ncatbot==4.4.1
