@@ -230,7 +230,7 @@ class ToolRegistry:
             params = meta.get("parameters", {})
 
             param_str = " ".join(
-                f"<{pname}>" if pinfo.get("required") else f"[{pname}]"
+                f"<{pname}>" if params[pname].get("required") else f"[{pname}]"
                 for pname in params
             )
 
