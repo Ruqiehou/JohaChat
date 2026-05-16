@@ -202,7 +202,7 @@ class ToolRegistry:
 
             # 构建参数说明
             param_desc = " ".join(
-                f"[{pname}]" if pinfo.get("required") else f"({pname})"
+                f"[{pname}]" if params[pname].get("required") else f"({pname})"
                 for pname in params
             )
 
