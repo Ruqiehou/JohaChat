@@ -318,7 +318,7 @@ Core 模块采用分层设计，分拆为三个子模块：
 **导入示例：**
 ```python
 # 从主入口导入（推荐）
-from joha.core import message_service, message_processor, command_handler
+from joha.core import message_service, message_handler, command_handler
 
 # 从子模块导入
 from joha.core.handlers import message_service

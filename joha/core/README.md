@@ -51,7 +51,7 @@ joha/core/
 ```python
 from joha.core import (
     message_service,
-    message_processor,
+    message_handler,
     command_handler,
     runtime_context,
     message_builder,
