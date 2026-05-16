@@ -7,13 +7,13 @@ from joha.core.runtime_context import runtime_context
 from joha.core.message_queue import message_queue_manager
 
 # ncatbot 配置（硬编码）
-config.set_bot_uin(bot_uin="3831279795")
-config.set_root(root="2654278608")
+config.set_bot_uin(bot_uin="")
+config.set_root(root="")
 config.set_ws_uri(ws_uri="ws://localhost:3002")
-config.set_ws_token(ws_token="Chasojoha")
+config.set_ws_token(ws_token="")
 config.set_webui_uri(webui_uri="http://localhost:6098")
-config.set_webui_token(webui_token="qVkC0,Mqh+=X;4{}")
-runtime_context.bot_uin = 3831279795
+config.set_webui_token(webui_token="")
+runtime_context.bot_uin = 
 
 bot = BotClient()
 
