@@ -569,44 +569,119 @@ class KnowledgeBase:
         date_from = datetime.now() - timedelta(days=days)
         return self.search(query, top_k=top_k, date_from=date_from)
     
-    def add_document(self, content: str, title: str = "", filename: str = None) -> Optional[str]:
+    def add_document(self, content: str = "", title: str = "", filename: str = None,
+                     question: str = "", response: str = "") -> Optional[str]:
         """
-        动态添加文档到知识库
+        动态添加文档到知识库（分片式存储）
         
         Args:
-            content: 文档内容
+            content: 文档内容（兼容旧版）
             title: 文档标题
             filename: 文件名（自动生成如果不提供）
+            question: 用户问题（新版结构化字段）
+            response: AI回复（新版结构化字段）
             
         Returns:
             文档 ID 或 None
         """
         try:
-            if filename is None:
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                safe_title = title[:20].replace("/", "_").replace("\\", "_").replace(":", "_") if title else "manual"
-                filename = f"{timestamp}-{safe_title}.txt"
+            now = datetime.now()
+            timestamp = now.strftime("%Y%m%d_%H%M%S")
             
-            # 保存到文件
-            filepath = self.txt_dir / filename
-            filepath.parent.mkdir(parents=True, exist_ok=True)
-            filepath.write_text(content, encoding='utf-8')
+            if filename is None:
+                safe_title = title[:20].replace("/", "_").replace("\\", "_").replace(":", "_") if title else "manual"
+                filename = f"{timestamp}-{safe_title}.json"
+            
+            # 构建结构化文档数据
+            doc_data = {
+                'id': f"doc_{timestamp}_{filename}",
+                'filename': filename,
+                'title': title[:100] if title else '',
+                'source': 'auto_save',
+                'full_text': content if content else f"{question}\n{response}",
+                'question': question[:500] if question else '',
+                'response': response[:1000] if response else '',
+                'timestamp': now.isoformat(),
+                'word_count': len(content.split()) if content else 0,
+                'char_count': len(content) if content else 0,
+            }
+            
+            # 追加到最后一个分片，或创建新分片
+            self._append_to_shard(doc_data)
             
             # 解析并添加到内存
-            doc = self._parse_document(content, filename, filepath, filepath.stat().st_mtime)
+            doc = self._create_document_from_json(doc_data, filename)
             if doc:
-                # 检查是否已存在
-                existing = [d for d in self.documents if d.id == doc.id]
-                if existing:
-                    self.documents = [d for d in self.documents if d.id != doc.id]
                 self.documents.append(doc)
                 self.indexed = False
-                self._file_mtimes[filepath] = doc.file_mtime
-                logger.info(f"已添加文档: {filename}")
+                logger.info(f"已添加文档到分片: {filename}")
                 return doc.id
         except Exception as e:
             logger.error(f"添加文档失败: {e}")
         return None
+    
+    def _append_to_shard(self, doc_data: dict, shard_size: int = 100):
+        """
+        将文档追加到分片文件
+        
+        Args:
+            doc_data: 文档数据
+            shard_size: 每个分片的最大文档数
+        """
+        # 查找所有分片文件
+        shard_files = sorted(self.txt_dir.glob("knowledge_*.json"))
+        
+        if shard_files:
+            # 使用最后一个分片
+            last_shard = shard_files[-1]
+            with open(last_shard, 'r', encoding='utf-8') as f:
+                shard_data = json.load(f)
+            
+            documents = shard_data.get('documents', [])
+            
+            # 如果当前分片已满，创建新分片
+            if len(documents) >= shard_size:
+                shard_num = len(shard_files) + 1
+                self._create_new_shard(shard_num, [doc_data])
+            else:
+                # 追加到当前分片
+                documents.append(doc_data)
+                shard_data['documents'] = documents
+                shard_data['metadata']['document_count'] = len(documents)
+                shard_data['metadata']['updated_at'] = datetime.now().isoformat()
+                
+                with open(last_shard, 'w', encoding='utf-8') as f:
+                    json.dump(shard_data, f, ensure_ascii=False, indent=2)
+        else:
+            # 没有分片，创建第一个
+            self._create_new_shard(1, [doc_data])
+    
+    def _create_new_shard(self, shard_num: int, documents: list):
+        """
+        创建新的分片文件
+        
+        Args:
+            shard_num: 分片编号
+            documents: 文档列表
+        """
+        shard_filename = f"knowledge_{shard_num:04d}.json"
+        shard_path = self.txt_dir / shard_filename
+        
+        shard_data = {
+            'metadata': {
+                'shard_number': shard_num,
+                'total_shards': shard_num,
+                'document_count': len(documents),
+                'created_at': datetime.now().isoformat(),
+                'version': '1.8.0',
+            },
+            'documents': documents,
+        }
+        
+        with open(shard_path, 'w', encoding='utf-8') as f:
+            json.dump(shard_data, f, ensure_ascii=False, indent=2)
+        
+        logger.info(f"已创建新分片: {shard_filename} ({len(documents)} 条)")
     
     def remove_document(self, doc_id: str) -> bool:
         """

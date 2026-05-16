@@ -45,14 +45,14 @@ def supports_multimodal(model_name: str) -> bool:
 
 # ==================== 工具函数 ====================
 
-def get_latest_txt_file() -> str | None:
-    """获取最近一次生成的 txt 记录文件路径"""
+def get_latest_json_file() -> str | None:
+    """获取最近一次生成的 JSON 分片文件路径"""
     try:
         txt_dir = os.path.join(os.path.dirname(__file__), "..", "storage", "txt")
         if not os.path.exists(txt_dir):
             return None
         
-        files = [f for f in os.listdir(txt_dir) if f.endswith('.txt')]
+        files = [f for f in os.listdir(txt_dir) if f.startswith('knowledge_') and f.endswith('.json')]
         if not files:
             return None
         
