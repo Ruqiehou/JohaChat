@@ -2,9 +2,9 @@
 from ncatbot.utils import config
 import asyncio
 
-from joha.core.message import message_processor
-from joha.core.runtime_context import runtime_context
-from joha.core.message_queue import message_queue_manager
+from joha.core.handlers import message_processor
+from joha.core.utils import runtime_context
+from joha.core.builders import message_queue_manager
 
 # ncatbot 配置（硬编码）
 config.set_bot_uin(bot_uin="")
