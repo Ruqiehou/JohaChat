@@ -1,4 +1,4 @@
-﻿"""
+"""
 统一的 AI 客户端架构
 支持多种 AI Provider，提供统一的调用接口
 """
@@ -8,7 +8,7 @@ from openai import OpenAI
 import json
 import time
 import random
-from joha.config.logger import tprint
+from joha.config.infrastructure.logger import tprint
 
 
 class BaseAIClient(ABC):

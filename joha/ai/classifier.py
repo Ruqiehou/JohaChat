@@ -1,10 +1,10 @@
-﻿"""
+"""
 通用问题分类器
 使用统一的 AI 客户端架构和 ProviderManager
 """
 from joha.ai.clients import create_client_from_provider
 from joha.ai.providers import provider_manager
-from joha.config.logger import tprint
+from joha.config.infrastructure.logger import tprint
 
 
 class QuestionClassifier:

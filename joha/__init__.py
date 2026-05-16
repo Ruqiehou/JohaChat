@@ -1,4 +1,4 @@
-﻿"""
+"""
 Joha - 智能聊天机器人框架 v1.0.0
 
 模块化架构：
@@ -31,7 +31,6 @@ from .config import (
     johalog_logger,
     ai_logger,
     group_mode_config,
-    cache,
 )
 
 from .decision import (
@@ -54,7 +53,6 @@ __all__ = [
     'user_profile_manager',
     'group_mode_config',
     'cooldown_manager',
-    'cache',
     'config',
     'johalog_logger',
     'ai_logger',

@@ -1,4 +1,4 @@
-﻿from ncatbot.core import BotClient, GroupMessage
+from ncatbot.core import BotClient, GroupMessage
 from ncatbot.utils import config
 import asyncio
 
@@ -26,10 +26,10 @@ async def process_expired_queues():
             expired_messages = await message_queue_manager.process_expired()
             
             if expired_messages:
-                from joha.config.logger import tprint
+                from joha.config.infrastructure.logger import tprint
                 tprint("info", f"[定时任务] 处理了 {len(expired_messages)} 个过期消息队列")
         except Exception as e:
-            from joha.config.logger import tprint
+            from joha.config.infrastructure.logger import tprint
             tprint("error", f"[定时任务] 处理过期队列失败: {e}")
 
 

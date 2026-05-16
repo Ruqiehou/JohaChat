@@ -1,4 +1,4 @@
-﻿"""
+"""
 消息处理器 v2.0 - 处理群消息
 支持上下文感知和群组状态追踪
 集成消息队列进行智能合并
@@ -8,7 +8,7 @@ from joha.core.handlers.service import message_service
 from joha.core.handlers.commands import command_handler, normalize_fallback_command
 from joha.core.utils.runtime_context import runtime_context
 from joha.core.builders.message_queue import message_queue_manager
-from joha.config.logger import johalog_logger, tprint
+from joha.config.infrastructure.logger import johalog_logger, tprint
 from joha.decision.group_state import group_state_manager
 
 

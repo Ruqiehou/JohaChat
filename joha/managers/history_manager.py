@@ -1,4 +1,4 @@
-﻿"""
+"""
 历史记录管理器 - JSON 存储版（重构版）
 支持按用户QQ区分，内部按群隔离的消息存储
 集成实时过滤机制，确保历史记录质量
@@ -9,7 +9,7 @@ import os
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from collections import Counter
-from joha.config.cache import LRUCache
+from joha.config.infrastructure.cache import LRUCache
 from joha.core.utils import post_processor
 
 logger = logging.getLogger(__name__)

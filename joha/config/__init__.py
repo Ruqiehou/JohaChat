@@ -1,10 +1,20 @@
-﻿# 配置与基础设施模块 - 配置管理、日志、缓存
-from .config_manager import config
-from .logger import johalog_logger, ai_logger, setup_logger
-from .group_mode_config import group_mode_config
-from .cache import LRUCache, persona_cache, history_cache, response_cache, cache_result
+# 配置与基础设施模块 - 分拆为 managers 和 infrastructure 两个子模块
+from .managers import config, ConfigManager, group_mode_config, GroupModeConfig
+from .infrastructure import johalog_logger, ai_logger, setup_logger, LRUCache, persona_cache, history_cache, response_cache, cache_result
 
 __all__ = [
-    'config', 'johalog_logger', 'ai_logger', 'setup_logger', 'group_mode_config',
-    'LRUCache', 'persona_cache', 'history_cache', 'response_cache', 'cache_result',
+    # Managers
+    'config',
+    'ConfigManager',
+    'group_mode_config',
+    'GroupModeConfig',
+    # Infrastructure
+    'johalog_logger',
+    'ai_logger',
+    'setup_logger',
+    'LRUCache',
+    'persona_cache',
+    'history_cache',
+    'response_cache',
+    'cache_result',
 ]

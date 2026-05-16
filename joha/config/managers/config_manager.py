@@ -1,4 +1,4 @@
-﻿"""
+"""
 配置管理器 - 统一管理所有配置
 支持环境变量和配置文件
 """
@@ -7,7 +7,7 @@ import json
 import threading
 from typing import Dict, Any, Optional, List
 from pathlib import Path
-from joha.config.logger import tprint
+from joha.config.infrastructure.logger import tprint
 
 
 class ConfigManager:

@@ -1,4 +1,4 @@
-﻿"""
+"""
 用户风格学习器 - JSON 存储版
 分析并学习用户的说话方式，支持更丰富的用户画像
 """
@@ -7,7 +7,7 @@ import json
 import os
 from typing import Dict, Any, List, Optional
 from collections import Counter
-from joha.config.logger import johalog_logger
+from joha.config.infrastructure.logger import johalog_logger
 
 STYLES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "styles")
 

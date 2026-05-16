@@ -1,4 +1,4 @@
-﻿"""
+"""
 通用 AI Bot 模块
 支持任意 OpenAI 兼容 API，支持工具调用（搜索、网页抓取、知识库查询）
 使用统一的 AI 客户端架构
@@ -7,7 +7,7 @@ from typing import List, Dict, Optional
 from joha.ai.clients import create_client_from_provider, BaseAIClient
 from joha.decision.tools import SearchTool, WebpageTool, kb_search_tool
 from joha.ai.providers import provider_manager
-from joha.config.logger import tprint
+from joha.config.infrastructure.logger import tprint
 
 
 class AIBot:

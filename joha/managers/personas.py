@@ -1,11 +1,11 @@
-﻿"""
+"""
 人设管理器 - 多维度参数化版本
 支持通过多个维度参数精细调控 AI 行为
 """
 import json
 import os
 from typing import Dict, Any, Optional, List
-from joha.config.cache import persona_cache, LRUCache
+from joha.config.infrastructure.cache import persona_cache, LRUCache
 import logging
 
 logger = logging.getLogger(__name__)

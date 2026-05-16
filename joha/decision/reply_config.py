@@ -1,10 +1,10 @@
-﻿"""
+"""
 回复决策配置加载器
 将 reply_decision 的魔法数字集中到 config.json，支持热读取
 """
 from typing import Dict, List, Any
 from dataclasses import dataclass, field
-from joha.config.config_manager import config as config_manager
+from joha.config.managers.config_manager import config as config_manager
 
 
 def _get_section() -> Dict[str, Any]:

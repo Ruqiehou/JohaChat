@@ -1,4 +1,4 @@
-﻿"""
+"""
 命令分析器 - 自然语言指令解析
 将用户的自然语言转化为具体的工具调用或动作
 """
@@ -6,8 +6,8 @@ import json
 from typing import Dict, Optional
 from joha.ai.clients import create_client_from_provider
 from joha.ai.providers import provider_manager, Provider
-from joha.config.config_manager import config as config_manager
-from joha.config.logger import tprint
+from joha.config.managers.config_manager import config as config_manager
+from joha.config.infrastructure.logger import tprint
 
 
 class CommandAnalyzer:

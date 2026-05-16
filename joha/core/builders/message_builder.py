@@ -1,4 +1,4 @@
-﻿"""
+"""
 统一消息构建器
 将 service._handle_active_mode 和 generator._build_messages 的重复逻辑合并
 """
@@ -6,7 +6,7 @@ from typing import List, Dict, Optional
 from joha.managers.personas import get_persona
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
-from joha.config.logger import tprint
+from joha.config.infrastructure.logger import tprint
 
 
 class MessageBuilder:

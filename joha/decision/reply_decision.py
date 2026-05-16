@@ -1,4 +1,4 @@
-﻿"""
+"""
 回复决策模型 v3.0
 基于 Logit 累加 + Sigmoid 概率化 + 场景阈值判断
 所有可调参数集中到 config.json → reply_decision 段
@@ -14,7 +14,7 @@ from joha.managers.user_profile import UserProfile, user_profile_manager
 from joha.decision.cooldown import CooldownManager, cooldown_manager
 from joha.decision.group_state import group_state_manager
 from joha.decision.reply_config import reply_cfg
-from joha.config.logger import tprint
+from joha.config.infrastructure.logger import tprint
 
 INTENT_PATTERNS = {
     "question": [
@@ -224,7 +224,7 @@ def compute_reply_prob(ctx: MessageContext, cooldown: CooldownManager = cooldown
     if profile.is_blocked:
         return 0.0
 
-    from joha.config.config_manager import config as config_manager
+    from joha.config.managers.config_manager import config as config_manager
     use_ai_intent = config_manager.get("intent_recognition.enabled", False)
 
     rule_intent, rule_confidence = _detect_intent(ctx.text)

@@ -1,10 +1,10 @@
-﻿"""
+"""
 Provider 抽象层
 统一管理所有 AI Provider（OpenAI 兼容），按 role 区分用途（classifier / chat）
 """
 import threading
 from typing import Optional, List, Dict
-from joha.config.logger import tprint
+from joha.config.infrastructure.logger import tprint
 
 
 class Provider:
@@ -45,7 +45,7 @@ class ProviderManager:
         self._load()
 
     def _load(self):
-        from joha.config.config_manager import config as config_manager
+        from joha.config.managers.config_manager import config as config_manager
 
         # 从 llm.providers 获取配置
         providers_cfg: List[Dict] = config_manager.get("llm.providers", [])
@@ -96,7 +96,7 @@ class ProviderManager:
         return list(self._providers.values())
 
     def add_or_update(self, name: str, role: str, api_key: str, base_url: str, model: str, default: bool = False):
-        from joha.config.config_manager import config as config_manager
+        from joha.config.managers.config_manager import config as config_manager
 
         # 从 llm.providers 获取配置
         providers_cfg: List[Dict] = config_manager.get("llm.providers", [])
@@ -120,7 +120,7 @@ class ProviderManager:
         self.reload()
 
     def remove(self, name: str):
-        from joha.config.config_manager import config as config_manager
+        from joha.config.managers.config_manager import config as config_manager
 
         # 从 llm.providers 获取配置
         providers_cfg: List[Dict] = config_manager.get("llm.providers", [])

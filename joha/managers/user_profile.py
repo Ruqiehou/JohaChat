@@ -1,9 +1,9 @@
-﻿import time
+import time
 import json
 import os
 from dataclasses import dataclass, asdict
 from typing import Dict, Optional
-from joha.config.logger import johalog_logger
+from joha.config.infrastructure.logger import johalog_logger
 
 PROFILES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
 PROFILES_FILE = os.path.join(PROFILES_DIR, "user_profiles.json")

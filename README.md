@@ -267,12 +267,13 @@ main.py                    ← 入口：启动 Bot，注册群消息事件
        │    ├─ user_profile.py   — 用户画像
        │    └─ admin.py          — 管理员管理
        │
-       └─ config/         ← 配置与基础设施
-            ├─ config_manager.py— 配置管理器
-            ├─ config.json      — 主配置文件
-            ├─ group_mode_config.py — 群组模式配置
-            ├─ logger.py        — 日志系统
-            └─ cache.py         — 缓存管理
+       └─ config/         ← 配置与基础设施（分拆为两个子模块）
+            ├─ managers/        — 配置管理器模块
+            │    ├─ config_manager.py    — 配置管理器（支持环境变量覆盖）
+            │    └─ group_mode_config.py — 群组模式配置
+            └─ infrastructure/  — 基础设施模块
+                 ├─ logger.py           — 日志系统（文件轮转、多级别）
+                 └─ cache.py            — 缓存系统（LRU 缓存）
 ```
 
 ### 🔄 消息处理流程
@@ -326,6 +327,30 @@ from joha.core.utils import runtime_context
 ```
 
 详细结构说明请查看 `joha/core/README.md`。
+
+### ⚙️ Config 模块结构
+
+Config 模块采用分层设计，分拆为两个子模块：
+
+| 子模块 | 职责 | 包含文件 |
+|--------|------|----------|
+| **managers/** | 配置管理器 - 配置加载、管理和持久化 | config_manager.py, group_mode_config.py |
+| **infrastructure/** | 基础设施 - 日志和缓存服务 | logger.py, cache.py |
+
+**导入示例：**
+```python
+# 从主入口导入（推荐）
+from joha.config import config, johalog_logger, LRUCache, group_mode_config
+
+# 从子模块导入
+from joha.config.managers import config, group_mode_config
+from joha.config.infrastructure import johalog_logger, LRUCache
+```
+
+**主要功能：**
+- **配置管理**：支持 JSON 配置文件和环境变量覆盖
+- **日志系统**：多级别日志、文件轮转、预定义日志记录器
+- **缓存系统**：LRU 缓存、TTL 过期、函数结果缓存装饰器
 
 ---
 

@@ -1,4 +1,4 @@
-﻿"""
+"""
 冷却管理器 v2.0 - JSON 持久化版
 更平滑的冷却曲线，支持按群独立冷却和用户级别冷却
 重启后恢复冷却状态
@@ -8,7 +8,7 @@ import math
 import json
 import os
 from typing import Dict
-from joha.config.logger import tprint
+from joha.config.infrastructure.logger import tprint
 
 COOLDOWN_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "cooldown.json")
 

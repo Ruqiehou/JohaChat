@@ -1,4 +1,4 @@
-﻿"""
+"""
 消息队列管理器 - 智能消息合并
 将短时间内的多条消息合并为一条进行处理，减少废话和冗余回复
 """
@@ -7,7 +7,7 @@ import asyncio
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from collections import defaultdict
-from joha.config.logger import tprint, johalog_logger
+from joha.config.infrastructure.logger import tprint, johalog_logger
 
 
 @dataclass
@@ -61,7 +61,7 @@ class MessageQueueManager:
         # 从配置文件读取设置
         if merge_window is None:
             try:
-                from joha.config.config_manager import config
+                from joha.config.managers.config_manager import config
                 queue_config = config.get('message_queue', {})
                 merge_window = queue_config.get('merge_window', 60.0)
                 self.max_queue_size = queue_config.get('max_queue_size', 5)

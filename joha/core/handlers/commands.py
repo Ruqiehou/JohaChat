@@ -1,4 +1,4 @@
-﻿"""
+"""
 命令处理器 - 处理所有Bot命令
 将命令处理逻辑从main.py分离出来
 """
@@ -6,7 +6,7 @@ from typing import Optional
 
 from joha.core.handlers.service import message_service
 from joha.managers.style_learner import style_learner
-from joha.config.config_manager import config
+from joha.config.managers.config_manager import config
 from joha.ai.generator import generator
 from joha.core.utils.persona_monitor import persona_monitor
 

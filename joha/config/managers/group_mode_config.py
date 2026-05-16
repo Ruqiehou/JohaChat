@@ -1,10 +1,10 @@
-﻿"""
+"""
 群组模式配置管理器 - JSON 持久化存储群组模式设置
 """
 import json
 import os
 from typing import Dict, Optional
-from joha.config.logger import johalog_logger
+from joha.config.infrastructure.logger import johalog_logger
 
 GROUP_MODES_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "group_modes.json")
 

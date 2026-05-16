@@ -1,4 +1,4 @@
-﻿"""
+"""
 日志配置模块 - 统一的日志系统
 支持多级别、文件轮转、格式化输出
 """
@@ -75,7 +75,7 @@ def get_logger(name: str) -> logging.Logger:
 
 
 # 预定义的日志记录器 - 全部放自己目录，不碰根目录logs
-JOHA_LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "storage", "johalog")
+JOHA_LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "storage", "johalog")
 
 johalog_logger = setup_logger("johalog", log_dir=JOHA_LOG_DIR)
 ai_logger = setup_logger("ai", log_dir=JOHA_LOG_DIR)

@@ -1,4 +1,4 @@
-﻿"""
+"""
 消息处理服务
 学习和回复是两套独立的流程
 """
@@ -14,9 +14,9 @@ from joha.decision.command_analyzer import command_analyzer
 from joha.decision.tools import SearchTool, WebpageTool, kb_search_tool
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
-from joha.config.logger import johalog_logger, ai_logger, tprint
-from joha.config.config_manager import config
-from joha.config.group_mode_config import group_mode_config
+from joha.config.infrastructure.logger import johalog_logger, ai_logger, tprint
+from joha.config.managers.config_manager import config
+from joha.config.managers.group_mode_config import group_mode_config
 from joha.decision.reply_decision import should_reply, compute_reply_prob, build_context
 from joha.decision.cooldown import cooldown_manager
 from joha.decision.knowledge.base import get_knowledge_base
