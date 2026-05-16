@@ -1,12 +1,13 @@
 """
-知识库模块 v2.0
-将 data/txt 目录下的文本文件转换为可查询的知识库
+知识库模块 v3.0 - 分片式存储架构
+将 storage/txt 目录下的 JSON 分片文件转换为可查询的知识库
 
 改进特性：
+- 结构化 JSON 存储（替代旧版 txt）
+- 分片式管理（每片100条，自动扩展）
 - jieba 中文分词增强关键词提取
 - BM25 算法提升搜索相关性
 - 结果去重与日期过滤
-- 子目录递归扫描
 - 动态文档管理（增删改）
 - 增量热重载
 - 文档统计与重复检测
@@ -219,43 +220,130 @@ class KnowledgeBase:
             return [w for w in all_words if w not in self.STOP_WORDS]
     
     def load_documents(self):
-        """递归加载所有文本文件到知识库"""
+        """加载分片式 JSON 知识库文件"""
         if not self.txt_dir.exists():
             logger.warning(f"知识库目录不存在: {self.txt_dir}")
             return
         
-        # 递归查找所有 txt 文件
-        txt_files = list(self.txt_dir.rglob("*.txt"))
+        # 查找所有分片文件 (knowledge_*.json)
+        shard_files = sorted(self.txt_dir.glob("knowledge_*.json"))
+        
+        if not shard_files:
+            logger.warning(f"未找到分片文件，尝试加载独立 JSON 文件")
+            self._load_individual_json_files()
+            return
         
         new_docs = []
-        new_mtimes = {}
+        total_docs = 0
         
-        for txt_file in txt_files:
+        for shard_file in shard_files:
             try:
-                mtime = txt_file.stat().st_mtime
-                new_mtimes[txt_file] = mtime
-                
-                # 增量加载：如果文件未修改则跳过
-                if txt_file in self._file_mtimes and self._file_mtimes[txt_file] == mtime:
-                    continue
-                
-                content = txt_file.read_text(encoding='utf-8')
-                doc_info = self._parse_document(content, txt_file.name, txt_file, mtime)
-                if doc_info:
-                    new_docs.append(doc_info)
+                with open(shard_file, 'r', encoding='utf-8') as f:
+                    shard_data = json.load(f)
+                    
+                    # 检查是否为分片格式
+                    if 'documents' not in shard_data:
+                        logger.warning(f"跳过非分片文件: {shard_file}")
+                        continue
+                    
+                    documents_in_shard = shard_data['documents']
+                    
+                    for doc_data in documents_in_shard:
+                        doc = self._create_document_from_json(doc_data, shard_file.name)
+                        if doc:
+                            new_docs.append(doc)
+                            total_docs += 1
+                            
             except Exception as e:
-                logger.error(f"加载文档失败 {txt_file}: {e}")
+                logger.error(f"加载分片失败 {shard_file}: {e}")
         
         if new_docs:
-            # 移除已修改的旧文档
-            modified_paths = {d.file_path for d in new_docs}
-            self.documents = [d for d in self.documents if d.file_path not in modified_paths]
-            self.documents.extend(new_docs)
-            logger.info(f"增量加载了 {len(new_docs)} 个新/修改的知识文档")
+            self.documents = new_docs
+            logger.info(f"已加载 {total_docs} 个知识文档（{len(shard_files)} 个分片）")
+        else:
+            logger.warning("未加载到任何文档")
         
-        self._file_mtimes = new_mtimes
-        logger.info(f"知识库共 {len(self.documents)} 个文档")
         self.indexed = False  # 标记需要重建索引
+    
+    def _load_individual_json_files(self):
+        """加载独立的 JSON 文件（兼容旧格式）"""
+        json_files = list(self.txt_dir.glob("*.json"))
+        # 排除分片文件和报告文件
+        json_files = [f for f in json_files if not f.name.startswith('knowledge_') and not f.name.endswith('_report.json')]
+        
+        new_docs = []
+        
+        for json_file in json_files:
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    doc_data = json.load(f)
+                    doc = self._create_document_from_json(doc_data, json_file.name)
+                    if doc:
+                        new_docs.append(doc)
+            except Exception as e:
+                logger.error(f"加载 JSON 文件失败 {json_file}: {e}")
+        
+        if new_docs:
+            self.documents = new_docs
+            logger.info(f"已加载 {len(new_docs)} 个独立 JSON 文档")
+        
+        self.indexed = False
+    
+    def _create_document_from_json(self, doc_data: dict, source_file: str) -> Optional[Document]:
+        """
+        从 JSON 数据创建 Document 对象
+        
+        Args:
+            doc_data: JSON 格式的文档数据
+            source_file: 源文件名
+            
+        Returns:
+            Document 对象或 None
+        """
+        try:
+            # 提取字段（支持新旧两种格式）
+            doc_id = doc_data.get('id', f"doc_{hash(source_file)}")
+            filename = doc_data.get('filename', source_file)
+            title = doc_data.get('title', filename.replace('.json', '').replace('_', ' '))
+            
+            # 处理时间戳
+            timestamp_str = doc_data.get('timestamp', '')
+            timestamp = None
+            if timestamp_str:
+                try:
+                    timestamp = datetime.fromisoformat(timestamp_str)
+                except ValueError:
+                    pass
+            
+            user_question = doc_data.get('question', doc_data.get('user_question', ''))
+            ai_response = doc_data.get('response', doc_data.get('ai_response', ''))
+            full_content = doc_data.get('full_text', doc_data.get('full_content', ''))
+            
+            # 如果没有结构化字段，尝试从 full_content 解析
+            if not user_question and not ai_response and full_content:
+                parsed = self._parse_document(full_content, filename)
+                if parsed:
+                    return parsed
+            
+            # 提取关键词
+            searchable_text = f"{user_question}\n{ai_response}\n{title}"
+            keywords = self._extract_keywords(searchable_text)
+            
+            return Document(
+                doc_id=doc_id,
+                filename=filename,
+                title=title[:100],
+                timestamp=timestamp,
+                user_question=user_question[:500] if user_question else '',
+                ai_response=ai_response[:1000] if ai_response else '',
+                full_content=full_content,
+                keywords=keywords,
+                file_path=None,
+                file_mtime=0,
+            )
+        except Exception as e:
+            logger.error(f"创建文档对象失败: {e}")
+            return None
     
     def _parse_document(self, content: str, filename: str, file_path: Path = None,
                         file_mtime: float = 0) -> Optional[Document]:
