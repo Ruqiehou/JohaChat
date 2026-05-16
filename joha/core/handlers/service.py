@@ -10,17 +10,13 @@ from typing import Optional, Dict, Any
 from joha.ai.generator import generator
 from joha.core.builders.message_builder import message_builder
 from joha.ai.bot import get_ai_bot
-from joha.decision.command_analyzer import command_analyzer
-from joha.tools import SearchTool, WebpageTool, kb_search_tool
 from joha.core.utils import get_tool_registry, tool_registry
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
 from joha.config.infrastructure.logger import johalog_logger, ai_logger, tprint
 from joha.config.managers.config_manager import config
 from joha.config.managers.group_mode_config import group_mode_config
-from joha.decision.reply_decision import should_reply, compute_reply_prob, build_context
-from joha.decision.cooldown import cooldown_manager
-from joha.decision.knowledge.base import get_knowledge_base
+from joha.decision import get_decision_engine
 
 
 # ==================== 多模态能力检测 ====================
@@ -98,6 +94,7 @@ class MessageService:
         self.failed_replies = 0
         
         # 初始化知识库
+        from joha.decision.knowledge.base import get_knowledge_base
         self.knowledge_base = get_knowledge_base()
         message_builder.knowledge_base = self.knowledge_base
         johalog_logger.info(f"已加载 {len(self.knowledge_base.get_all_documents())} 个知识库文档")
@@ -107,6 +104,9 @@ class MessageService:
         discovered = self.tool_registry.auto_discover()
         message_builder.tool_registry = self.tool_registry
         johalog_logger.info(f"ToolRegistry 已加载 {discovered} 个工具")
+        
+        # 初始化决策引擎
+        self.decision_engine = get_decision_engine()
         
         self.group_modes: Dict[str, str] = group_mode_config.get_all_modes()
         johalog_logger.info(f"已初始化 {len(self.group_modes)} 个群组模式")
@@ -151,38 +151,42 @@ class MessageService:
         tprint("info", f"[消息] 群{group_id} | 用户{userid_str}: {log_msg}")
         
         group_mode = self.get_group_mode(group_id) if group_id else self.get_global_mode()
-        should_generate_reply = group_mode == "active" or force_reply
         learn_msg = message if message else f"[用户发送了一张图片]"
         
-        if should_generate_reply:
-            # 使用 build_context 自动填充群组动态特征
-            ctx = build_context(
-                text=log_msg,
-                user_id=userid_str,
-                group_id=group_id or "",
-                is_at_bot=is_at_bot,
-                reply_to_bot=reply_to_bot,
-                is_pure_media=is_pure_sticker_or_image,
-            )
-            prob = compute_reply_prob(ctx, cooldown_manager)
-            decision = should_reply(ctx, cooldown_manager)
-            self.reply_decisions += 1
-            tprint("info",
-                f"[决策] 概率={prob:.3f} | 阈值={ctx.group_msg_per_minute:.1f}msg/min | "
-                f"意图={ctx.intent} | {'✅ 回复' if decision else '❌ 跳过'}"
-            )
-            johalog_logger.debug(
-                f"[回复决策] 概率={prob:.3f}, 意图={ctx.intent}, "
-                f"决策={'✅回复' if decision else '❌不回复'}"
-            )
-            if not decision:
-                self.skipped_replies += 1
-                self._learn_message(userid_str, learn_msg, group_id)
-                return None
-            return await self._handle_active_mode(userid_str, message, images, group_id)
-        else:
-            self._learn_message(userid_str, learn_msg, group_id)
+        # 1. 先学习所有消息（无论是否回复）
+        self._learn_message(userid_str, learn_msg, group_id)
+        
+        # 2. 检查群组模式
+        should_generate_reply = group_mode == "active" or force_reply
+        
+        if not should_generate_reply:
             return None
+        
+        # 3. 主动模式：通过决策引擎进行完整决策
+        result = self.decision_engine.process(
+            text=log_msg,
+            user_id=userid_str,
+            group_id=group_id or "",
+            is_at_bot=is_at_bot,
+            reply_to_bot=reply_to_bot,
+            is_pure_media=is_pure_sticker_or_image,
+            group_mode=group_mode,
+            force_reply=force_reply,
+        )
+        self.reply_decisions += 1
+        
+        if not result.should_reply:
+            self.skipped_replies += 1
+            return None
+        
+        # 4. 工具直接回复（引擎已执行）
+        if result.reply_text:
+            history_manager.add_message(userid_str, message or "[图片]", result.reply_text, group_id=group_id)
+            self.generated_replies += 1
+            return result.reply_text
+        
+        # 5. 生成完整回复
+        return await self._handle_active_mode(userid_str, message, images, group_id)
     
     def _learn_message(self, userid_str: str, message: str, group_id: Optional[str] = None) -> None:
         try:
@@ -226,54 +230,24 @@ class MessageService:
                 group_id=group_id,
             )
 
-            # 调用LLM生成回复（支持自然语言指令解析）
+            # 调用LLM生成回复
             log_msg = message[:30] if message else f"[图片]"
             tprint("info", f"[AI] 请求中... | 用户{userid_str} | 消息: {log_msg}{'...' if len(message) > 30 else ''}")
             
-            # 1. 检查是否通过 ToolRegistry 的显式命令调用（以 / 开头）
             response = None
-            if message.startswith('/'):
-                parts = message.split(None, 1)
-                cmd = parts[0]
-                args = parts[1] if len(parts) > 1 else ""
-                response = self.tool_registry.dispatch(cmd, args)
-                if response:
-                    tprint("info", f"[ToolRegistry] 工具调用: {cmd} {args}")
-
-            # 2. 如果没有触发工具，则通过命令分析器判断（斜杠命令跳过分析器）
-            if not response and not message.startswith('/'):
-                analysis = command_analyzer.analyze(message)
-                
-                if analysis['action'] == 'search':
-                    tprint("info", f"[工具] 触发搜索: {analysis['query']}")
-                    search_tool_ins = SearchTool()
-                    response = f"搜索结果：\n{search_tool_ins.search(analysis['query'])}"
-                elif analysis['action'] == 'knowledge':
-                    tprint("info", f"[工具] 触发知识库: {analysis['query']}")
-                    response = f"记忆检索：\n{kb_search_tool.search(analysis['query'])}"
-                elif analysis['action'] == 'webpage':
-                    import re
-                    urls = re.findall(r'http[s]?://\S+', message)
-                    if urls:
-                        tprint("info", f"[工具] 触发网页抓取: {urls[0]}")
-                        webpage_tool_ins = WebpageTool()
-                        response = f"网页摘要：\n{webpage_tool_ins.fetch(urls[0])}"
-            
-            # 3. 如果没触发工具，或者工具返回为空，则进行普通聊天
-            if not response:
-                try:
-                    ai_bot = get_ai_bot()
-                    response = await asyncio.get_event_loop().run_in_executor(
-                        None,
-                        lambda: ai_bot.chat(message, temperature=0.7)
-                    )
-                except Exception as bot_err:
-                    tprint("warning", f"[AIBot] 失败，回退到生成器: {bot_err}")
-                    response = await generator.chat(
-                        messages=context_messages,
-                        temperature=0.7,
-                        max_tokens=1024,
-                    )
+            try:
+                ai_bot = get_ai_bot()
+                response = await asyncio.get_event_loop().run_in_executor(
+                    None,
+                    lambda: ai_bot.chat(message, temperature=0.7)
+                )
+            except Exception as bot_err:
+                tprint("warning", f"[AIBot] 失败，回退到生成器: {bot_err}")
+                response = await generator.chat(
+                    messages=context_messages,
+                    temperature=0.7,
+                    max_tokens=1024,
+                )
             if not response:
                 self.failed_replies += 1
                 tprint("warning", f"[AI] 未生成回复，已跳过发送到群 | 用户{userid_str} | 消息: {log_msg}")

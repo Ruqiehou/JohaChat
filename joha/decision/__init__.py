@@ -4,6 +4,9 @@ from .cooldown import cooldown_manager
 from .knowledge.base import KnowledgeBase, get_knowledge_base, search_knowledge_base
 from .intent_classifier import IntentClassifier, get_intent_classifier, reload_intent_classifier, intent_classifier
 
+# 决策引擎（总分架构的"总"）
+from .decision_engine import DecisionEngine, get_decision_engine, EngineResult
+
 # 工具模块已迁移至 joha/tools/（避免循环导入，使用惰性导入）
 def __getattr__(name):
     import importlib
@@ -15,6 +18,7 @@ def __getattr__(name):
 
 __all__ = [
     'MessageContext', 'should_reply', 'compute_reply_prob', 'cooldown_manager',
+    'DecisionEngine', 'get_decision_engine', 'EngineResult',
     'KnowledgeBase', 'get_knowledge_base', 'search_knowledge_base',
     'SearchTool', 'WebpageTool', 'LinkPreviewTool',
     'KnowledgeBaseSearchTool', 'get_kb_search_tool',
