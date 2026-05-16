@@ -67,6 +67,9 @@ class MessageContext:
 
 
 def _detect_intent(text: str) -> tuple:
+    # 斜杠命令一律视为 command 意图，不进行规则匹配
+    if text.startswith('/'):
+        return "command", 1.0
     text_lower = text.lower().strip()
     if not text_lower:
         return "chat", 0.0
@@ -225,7 +228,8 @@ def compute_reply_prob(ctx: MessageContext, cooldown: CooldownManager = cooldown
         return 0.0
 
     from joha.config.managers.config_manager import config as config_manager
-    use_ai_intent = config_manager.get("intent_recognition.enabled", False)
+    # 斜杠命令跳过 AI 意图识别
+    use_ai_intent = False if ctx.text.startswith('/') else config_manager.get("intent_recognition.enabled", False)
 
     rule_intent, rule_confidence = _detect_intent(ctx.text)
     ai_result = None

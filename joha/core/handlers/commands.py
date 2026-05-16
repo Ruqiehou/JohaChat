@@ -7,7 +7,7 @@ from typing import Optional
 from joha.core.handlers.service import message_service
 from joha.managers.style_learner import style_learner
 from joha.config.managers.config_manager import config
-from joha.ai.generator import generator
+# generator 仅在 /切换模型 命令中延迟导入，避免 LLM 未配置时影响其他管理命令
 from joha.core.utils.persona_monitor import persona_monitor
 from joha.tools import get_kb_search_tool
 
@@ -328,6 +328,7 @@ class CommandHandler:
                 response += f"接口：{provider.get('base_url', '')}"
 
         elif cmd == "/切换模型" and len(parts) >= 2:
+            from joha.ai.generator import generator
             target = parts[1]
             if generator.switch_provider(target):
                 response = (
