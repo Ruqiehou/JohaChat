@@ -65,35 +65,20 @@ def get_latest_json_file() -> str | None:
 
 
 def save_conversation(question: str, response: str):
-    """保存对话记录到 txt 文件（使用与知识库解析器一致的格式）"""
+    """保存对话记录到知识库（使用结构化 JSON 格式）"""
     try:
-        txt_dir = os.path.join(os.path.dirname(__file__), "..", "storage", "txt")
-        os.makedirs(txt_dir, exist_ok=True)
+        # 直接添加到知识库，由 KnowledgeBase 统一管理分片存储
+        from joha.decision.knowledge.base import get_knowledge_base
         
-        now = datetime.now()
-        timestamp = now.strftime("%Y%m%d_%H%M%S")
-        brief = question.strip()[:20].replace("/", "_").replace("\\", "_").replace(":", "_")
-        filename = f"{timestamp}-{brief}.txt"
-        filepath = os.path.join(txt_dir, filename)
+        kb = get_knowledge_base()
+        kb.add_document(
+            question=question,
+            response=response,
+            title=question[:50],
+        )
         
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(f"时间: {now.strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write("=" * 60 + "\n\n")
-            f.write("【用户问题】\n")
-            f.write(f"{question}\n\n")
-            f.write("【AI 回复】\n")
-            f.write(f"{response}\n")
+        tprint("info", f"[保存记录] 成功：已添加到知识库分片")
         
-        tprint("info", f"[保存记录] 成功：{filename}")
-        
-        # 增量添加到知识库
-        try:
-            from joha.decision.knowledge.base import get_knowledge_base
-            content = f"时间: {now.strftime('%Y-%m-%d %H:%M:%S')}\n{'=' * 60}\n\n【用户问题】\n{question}\n\n【AI 回复】\n{response}\n"
-            kb = get_knowledge_base()
-            kb.add_document(content, title=question, filename=filename)
-        except Exception:
-            pass
     except Exception as e:
         tprint("error", f"[保存记录] 错误：{e}")
 
