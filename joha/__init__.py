@@ -11,7 +11,7 @@ Joha - 智能聊天机器人框架 v1.0.0
 
 from .core import (
     message_service,
-    message_processor,
+    message_handler,
     command_handler,
 )
 
@@ -44,7 +44,7 @@ __author__ = "Joha Team"
 # 导出主要类和函数
 __all__ = [
     'message_service',
-    'message_processor',
+    'message_handler',
     'command_handler',
     'generator',
     'persona_manager',

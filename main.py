@@ -2,7 +2,7 @@ from ncatbot.core import BotClient, GroupMessage
 from ncatbot.utils import config
 import asyncio
 
-from joha.core.handlers import message_processor
+from joha.core.handlers import message_handler
 from joha.core.utils import runtime_context
 from joha.core.builders import message_queue_manager
 
@@ -40,7 +40,7 @@ async def joha_agent(msg: GroupMessage):
         joha_agent._queue_task_started = True
         asyncio.create_task(process_expired_queues())
     
-    await message_processor.process_group_message(msg, bot.api)
+    await message_handler.process_group_message(msg, bot.api)
 
 
 try:
