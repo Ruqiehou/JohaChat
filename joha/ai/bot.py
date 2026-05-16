@@ -5,7 +5,7 @@
 """
 from typing import List, Dict, Optional
 from joha.ai.clients import create_client_from_provider, BaseAIClient
-from joha.decision.tools import SearchTool, WebpageTool, kb_search_tool
+from joha.tools import SearchTool, WebpageTool, kb_search_tool
 from joha.ai.providers import provider_manager
 from joha.config.infrastructure.logger import tprint
 

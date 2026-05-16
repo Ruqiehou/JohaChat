@@ -13,6 +13,7 @@ class MessageBuilder:
 
     def __init__(self, knowledge_base=None):
         self.knowledge_base = knowledge_base
+        self.tool_registry = None
 
     def build(
         self,
@@ -57,6 +58,12 @@ class MessageBuilder:
                     "要用自己的话自然表达。如果知识和当前话题无关，请忽略。】\n\n"
                     + rag_context
                 )
+
+        # 注入工具描述（如果 ToolRegistry 已初始化且有工具）
+        if self.tool_registry:
+            tool_desc = self.tool_registry.get_tool_descriptions()
+            if tool_desc:
+                system_prompt += "\n\n" + tool_desc
 
         context_messages = [{"role": "system", "content": system_prompt}]
 

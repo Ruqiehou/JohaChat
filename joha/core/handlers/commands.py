@@ -9,6 +9,7 @@ from joha.managers.style_learner import style_learner
 from joha.config.managers.config_manager import config
 from joha.ai.generator import generator
 from joha.core.utils.persona_monitor import persona_monitor
+from joha.tools import get_kb_search_tool
 
 
 def is_admin(userid: str) -> bool:
@@ -341,23 +342,19 @@ class CommandHandler:
 
         # ── 知识库管理 ──
         elif cmd == "/知识库统计":
-            from joha.decision.tools.knowledge_search import get_kb_search_tool
             kb_tool = get_kb_search_tool()
             response = kb_tool.get_statistics()
 
         elif cmd == "/知识库刷新":
-            from joha.decision.tools.knowledge_search import get_kb_search_tool
             kb_tool = get_kb_search_tool()
             response = kb_tool.refresh()
 
         elif cmd == "/知识库搜索" and len(parts) >= 2:
-            from joha.decision.tools.knowledge_search import get_kb_search_tool
             kb_tool = get_kb_search_tool()
             query = parts[1]
             response = kb_tool.search(query, num_results=5)
 
         elif cmd == "/知识库添加" and len(parts) >= 2:
-            from joha.decision.tools.knowledge_search import get_kb_search_tool
             kb_tool = get_kb_search_tool()
             content = parts[1]
             if "|" in content:
@@ -367,7 +364,6 @@ class CommandHandler:
                 response = "格式错误，请使用：/知识库添加 问题|回答"
 
         elif cmd == "/知识库重复":
-            from joha.decision.tools.knowledge_search import get_kb_search_tool
             kb_tool = get_kb_search_tool()
             response = kb_tool.find_duplicates()
 

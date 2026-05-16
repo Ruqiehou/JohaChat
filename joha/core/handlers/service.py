@@ -11,7 +11,8 @@ from joha.ai.generator import generator
 from joha.core.builders.message_builder import message_builder
 from joha.ai.bot import get_ai_bot
 from joha.decision.command_analyzer import command_analyzer
-from joha.decision.tools import SearchTool, WebpageTool, kb_search_tool
+from joha.tools import SearchTool, WebpageTool, kb_search_tool
+from joha.core.tool_registry import get_tool_registry, tool_registry
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
 from joha.config.infrastructure.logger import johalog_logger, ai_logger, tprint
@@ -100,6 +101,12 @@ class MessageService:
         self.knowledge_base = get_knowledge_base()
         message_builder.knowledge_base = self.knowledge_base
         johalog_logger.info(f"已加载 {len(self.knowledge_base.get_all_documents())} 个知识库文档")
+        
+        # 初始化 Tool Registry（自动发现工具）
+        self.tool_registry = tool_registry
+        discovered = self.tool_registry.auto_discover()
+        message_builder.tool_registry = self.tool_registry
+        johalog_logger.info(f"ToolRegistry 已加载 {discovered} 个工具")
         
         self.group_modes: Dict[str, str] = group_mode_config.get_all_modes()
         johalog_logger.info(f"已初始化 {len(self.group_modes)} 个群组模式")
@@ -223,26 +230,36 @@ class MessageService:
             log_msg = message[:30] if message else f"[图片]"
             tprint("info", f"[AI] 请求中... | 用户{userid_str} | 消息: {log_msg}{'...' if len(message) > 30 else ''}")
             
-            # 1. 命令分析：判断是否需要调工具
-            analysis = command_analyzer.analyze(message)
+            # 1. 检查是否通过 ToolRegistry 的显式命令调用（以 / 开头）
             response = None
+            if message.startswith('/'):
+                parts = message.split(None, 1)
+                cmd = parts[0]
+                args = parts[1] if len(parts) > 1 else ""
+                response = self.tool_registry.dispatch(cmd, args)
+                if response:
+                    tprint("info", f"[ToolRegistry] 工具调用: {cmd} {args}")
+
+            # 2. 如果没有触发工具，则通过命令分析器判断
+            if not response:
+                analysis = command_analyzer.analyze(message)
+                
+                if analysis['action'] == 'search':
+                    tprint("info", f"[工具] 触发搜索: {analysis['query']}")
+                    search_tool_ins = SearchTool()
+                    response = f"搜索结果：\n{search_tool_ins.search(analysis['query'])}"
+                elif analysis['action'] == 'knowledge':
+                    tprint("info", f"[工具] 触发知识库: {analysis['query']}")
+                    response = f"记忆检索：\n{kb_search_tool.search(analysis['query'])}"
+                elif analysis['action'] == 'webpage':
+                    import re
+                    urls = re.findall(r'http[s]?://\S+', message)
+                    if urls:
+                        tprint("info", f"[工具] 触发网页抓取: {urls[0]}")
+                        webpage_tool_ins = WebpageTool()
+                        response = f"网页摘要：\n{webpage_tool_ins.fetch(urls[0])}"
             
-            if analysis['action'] == 'search':
-                tprint("info", f"[工具] 触发搜索: {analysis['query']}")
-                search_tool = SearchTool()
-                response = f"🔍 搜索结果：\n{search_tool.search(analysis['query'])}"
-            elif analysis['action'] == 'knowledge':
-                tprint("info", f"[工具] 触发知识库: {analysis['query']}")
-                response = f"📚 记忆检索：\n{kb_search_tool.search(analysis['query'])}"
-            elif analysis['action'] == 'webpage':
-                import re
-                urls = re.findall(r'http[s]?://\S+', message)
-                if urls:
-                    tprint("info", f"[工具] 触发网页抓取: {urls[0]}")
-                    webpage_tool = WebpageTool()
-                    response = f"🌐 网页摘要：\n{webpage_tool.fetch(urls[0])}"
-            
-            # 2. 如果没触发工具，或者工具返回为空，则进行普通聊天
+            # 3. 如果没触发工具，或者工具返回为空，则进行普通聊天
             if not response:
                 try:
                     ai_bot = get_ai_bot()
