@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from collections import Counter
 from joha.config.cache import LRUCache
-from joha.core.response_postprocessor import post_processor
+from joha.core.utils import post_processor
 
 logger = logging.getLogger(__name__)
 

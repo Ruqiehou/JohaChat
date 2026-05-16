@@ -1,14 +1,24 @@
-# 核心编排模块 - 服务、消息处理、命令处理、运行时上下文
-from .service import message_service, MessageService
-from .message import message_processor
-from .commands import command_handler
-from .runtime_context import runtime_context, RuntimeContext
+# 核心编排模块 - 分拆为 handlers, builders, utils 三个子模块
+from .handlers import message_service, MessageService, message_processor, command_handler
+from .builders import message_builder, MessageBuilder, message_queue_manager, MessageQueueManager
+from .utils import runtime_context, RuntimeContext, persona_monitor, PersonaStabilityMonitor, post_processor, ResponsePostProcessor
 
 __all__ = [
+    # Handlers
     'message_service',
     'MessageService',
     'message_processor',
     'command_handler',
+    # Builders
+    'message_builder',
+    'MessageBuilder',
+    'message_queue_manager',
+    'MessageQueueManager',
+    # Utils
     'runtime_context',
     'RuntimeContext',
+    'persona_monitor',
+    'PersonaStabilityMonitor',
+    'post_processor',
+    'ResponsePostProcessor',
 ]
