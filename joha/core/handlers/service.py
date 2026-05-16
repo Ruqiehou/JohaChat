@@ -8,7 +8,7 @@ import asyncio
 from datetime import datetime
 from typing import Optional, Dict, Any
 from joha.ai.generator import generator
-from joha.core.message_builder import message_builder
+from joha.core.builders.message_builder import message_builder
 from joha.ai.bot import get_ai_bot
 from joha.decision.command_analyzer import command_analyzer
 from joha.decision.tools import SearchTool, WebpageTool, kb_search_tool
