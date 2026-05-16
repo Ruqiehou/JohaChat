@@ -229,13 +229,19 @@ napcat:
 main.py                    ← 入口：启动 Bot，注册群消息事件
   │
   └─ joha/                 ← 核心包
-       ├─ core/            ← 编排入口层
-       │    ├─ message.py        — 消息接收与预处理
-       │    ├─ service.py        — 核心业务逻辑（学习 + 回复分离）
-       │    ├─ commands.py       — 命令处理
-       │    ├─ message_queue.py  — 消息队列合并
-       │    ├─ message_builder.py— LLM 上下文构建
-       │    └─ persona_monitor.py— 人设监控
+       ├─ core/            ← 编排入口层（分拆为三个子模块）
+       │    ├─ handlers/        — 处理器模块
+       │    │    ├─ message.py        — 消息接收与预处理
+       │    │    ├─ service.py        — 核心业务逻辑（学习 + 回复分离）
+       │    │    └─ commands.py       — 命令处理
+       │    ├─ builders/        — 构建器模块
+       │    │    ├─ message_builder.py— LLM 上下文构建
+       │    │    └─ message_queue.py  — 消息队列合并
+       │    └─ utils/           — 工具模块
+       │         ├─ runtime_context.py  — 运行时上下文
+       │         ├─ persona_monitor.py  — 人设监控
+       │         ├─ response_postprocessor.py — 回复后处理
+       │         └─ clean_history.py    — 历史记录清洗
        │
        ├─ ai/              ← AI 驱动层
        │    ├─ clients.py        — AI 客户端抽象
@@ -297,6 +303,29 @@ main.py                    ← 入口：启动 Bot，注册群消息事件
 6. **冷却管理**：防止短时间内连续回复
 
 最终概率通过 Sigmoid 函数归一化到 [0, 1]，与阈值比较决定是否回复。
+
+### 📦 Core 模块结构
+
+Core 模块采用分层设计，分拆为三个子模块：
+
+| 子模块 | 职责 | 包含文件 |
+|--------|------|----------|
+| **handlers/** | 处理器模块 - 消息接收、处理和业务逻辑 | message.py, service.py, commands.py |
+| **builders/** | 构建器模块 - 构建数据结构和上下文 | message_builder.py, message_queue.py |
+| **utils/** | 工具模块 - 辅助功能和工具类 | runtime_context.py, persona_monitor.py, response_postprocessor.py, clean_history.py |
+
+**导入示例：**
+```python
+# 从主入口导入（推荐）
+from joha.core import message_service, message_processor, command_handler
+
+# 从子模块导入
+from joha.core.handlers import message_service
+from joha.core.builders import message_builder
+from joha.core.utils import runtime_context
+```
+
+详细结构说明请查看 `joha/core/README.md`。
 
 ---
 
