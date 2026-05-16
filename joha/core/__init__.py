@@ -1,8 +1,7 @@
-# 核心编排模块 - 分拆为 handlers, builders, utils, tool_registry 四个子模块
+# 核心编排模块 - 分拆为 handlers, builders, utils 三个子模块
 from .handlers import message_service, MessageService, message_handler, command_handler
 from .builders import message_builder, MessageBuilder, message_queue_manager, MessageQueueManager
-from .utils import runtime_context, RuntimeContext, persona_monitor, PersonaStabilityMonitor, post_processor, ResponsePostProcessor
-from .tool_registry import tool_registry, get_tool_registry, ToolRegistry
+from .utils import runtime_context, RuntimeContext, persona_monitor, PersonaStabilityMonitor, post_processor, ResponsePostProcessor, tool_registry, get_tool_registry, ToolRegistry
 
 __all__ = [
     # Handlers
@@ -22,7 +21,6 @@ __all__ = [
     'PersonaStabilityMonitor',
     'post_processor',
     'ResponsePostProcessor',
-    # Tool Registry
     'tool_registry',
     'get_tool_registry',
     'ToolRegistry',

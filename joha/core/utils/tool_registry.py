@@ -13,7 +13,7 @@ from joha.config.infrastructure.logger import tprint
 
 
 # 默认工具扫描路径
-DEFAULT_TOOLS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools")
+DEFAULT_TOOLS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "tools")
 
 
 class ToolRegistry:

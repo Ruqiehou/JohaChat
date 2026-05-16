@@ -12,7 +12,7 @@ from joha.core.builders.message_builder import message_builder
 from joha.ai.bot import get_ai_bot
 from joha.decision.command_analyzer import command_analyzer
 from joha.tools import SearchTool, WebpageTool, kb_search_tool
-from joha.core.tool_registry import get_tool_registry, tool_registry
+from joha.core.utils import get_tool_registry, tool_registry
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
 from joha.config.infrastructure.logger import johalog_logger, ai_logger, tprint
@@ -240,8 +240,8 @@ class MessageService:
                 if response:
                     tprint("info", f"[ToolRegistry] 工具调用: {cmd} {args}")
 
-            # 2. 如果没有触发工具，则通过命令分析器判断
-            if not response:
+            # 2. 如果没有触发工具，则通过命令分析器判断（斜杠命令跳过分析器）
+            if not response and not message.startswith('/'):
                 analysis = command_analyzer.analyze(message)
                 
                 if analysis['action'] == 'search':
