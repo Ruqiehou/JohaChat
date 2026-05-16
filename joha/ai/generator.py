@@ -3,8 +3,8 @@ from joha.managers.history_manager import load_history
 from joha.config.config_manager import config
 from joha.config.cache import cache_result, response_cache
 from joha.managers.style_learner import style_learner
-from joha.core.message_builder import message_builder
-from joha.core.response_postprocessor import post_processor
+from joha.core.builders import message_builder
+from joha.core.utils import post_processor
 from joha.config.logger import tprint
 import asyncio
 import logging
