@@ -40,7 +40,7 @@ async def joha_agent(event: GroupMessageEvent):
 
 
 try:
-    bot.run_frontend(debug=True)
+    bot.start(debug=True)
 finally:
     from joha.managers.style_learner import style_learner
     from joha.managers.user_profile import user_profile_manager
