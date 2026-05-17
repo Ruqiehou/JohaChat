@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
-![ncatbot](https://img.shields.io/badge/ncatbot-4.4.1-orange.svg)
+![RqhBot SDK](https://img.shields.io/badge/RqhBot%20SDK-3.5.0-purple.svg)
 
 [功能特性](#-功能特性) • [快速开始](#-快速开始) • [配置说明](#-配置说明) • [命令参考](#-命令参考) • [架构说明](#-架构说明)
 
@@ -21,16 +21,16 @@
 | 特性 | 说明 |
 |------|------|
 | **智能决策** | 基于概率计算（Logit 累加 + Sigmoid 归一化）判断是否回复，避免废话刷屏 |
-| **意图多模型切换** | 运行时动态切换 AI 模型（DeepSeek / 通义千问 / Gemini 等） |
+| **多模型切换** | 运行时动态切换 AI 模型（DeepSeek / 通义千问 / Gemini 等） |
 | **消息队列合并** | 短时间内的多条消息自动合并，减少不必要的回复 |
-| **多模态支持** | 支持图片理解（Qwen-VL、GPT-4o 等视觉模型）需要自己配置 |
+| **多模态支持** | 支持图片理解（Qwen-VL、GPT-4o 等视觉模型）需自行配置 |
 | **群组动态调节** | 根据群活跃度、消息频率、认可率自动调整回复阈值 |
 
 ### 🚀 进阶能力
 
 | 特性 | 说明 |
 |------|------|
-| **风格学习** | 自动学习群成员说话风格,使回复更自然融入群聊 |
+| **风格学习** | 自动学习群成员说话风格，使回复更自然融入群聊 |
 | **人设管理** | 基于多维度参数的精细化人设系统，支持动态调整性格特质、表达风格、社交行为等参数 |
 | **知识库 (RAG)** | 基于文档检索增强生成，支持知识搜索、添加与管理 |
 | **工具调用** | 支持搜索、网页抓取、知识库检索等工具 |
@@ -46,45 +46,44 @@
 ### 📋 环境要求
 
 - **Python**: >= 3.9
-- **消息平台适配器**: 运行中（如 NapCatQQ 等）
-  - 示例: [NapCatQQ GitHub](https://github.com/NapNeko/NapCatQQ)
-  - 确保 WebSocket 端口默认 3002 或自行配置
+- **消息平台**: 运行中的 NapCatQQ（或其他兼容 OneBot 协议的消息平台）
+  - 下载: [NapCatQQ GitHub](https://github.com/NapNeko/NapCatQQ)
+  - 确保 WebSocket 端口（默认 3002）开放
 
 ### 📦 安装步骤
 
 ```bash
 # 1. 克隆项目
 git clone <your-repo-url>
-cd "JohaBot"
+cd JohaSystem
 
 # 2. 安装依赖
-pip install ncatbot==4.4.1
 pip install -r requirements.txt
 
-# 3. 配置消息平台适配器
-#    确保适配器已启动，WebSocket 端口为 3002（或修改 config.yaml）
-
-# 4. 配置 AI API Key
+# 3. 配置 AI API Key
 #    复制配置示例文件
 cp joha/config/config.example.json joha/config/config.json
-cp config.example.yaml config.yaml
 #    编辑 joha/config/config.json，填入你的 API Key
+
+# 4. 修改 main.py 中的连接参数（WebSocket 地址和机器人 QQ 号）
+#    bot = BotClient(ws_url="ws://localhost:3002", access_token="")
+#    runtime_context.bot_uin = 8888888888
 
 # 5. 运行机器人
 python main.py
 ```
 
-> ⚠️ **重要提示**: 必须安装 `ncatbot==4.4.1` 版本，其他版本可能存在兼容性问题！
-
 ### 📚 依赖清单
 
 | 依赖 | 版本 | 用途 |
 |------|------|------|
-| `ncatbot` | **4.4.1** | 消息平台适配器核心（⚠️ 必须使用此版本） |
+| `websockets` | >=12.0 | WebSocket 客户端（连接 NapCatQQ 消息平台） |
 | `openai` | >=1.0.0 | LLM API 调用（兼容 OpenAI 协议） |
 | `pyyaml` | >=6.0 | YAML 配置解析 |
 | `jieba` | >=0.42.1 | 中文分词（知识库检索） |
 | `python-dotenv` | >=1.0.0 | 环境变量管理（可选） |
+
+> 💡 自研 **RqhBot SDK**（`joha/sdk/`）取代了第三方消息平台适配器，内部基于 `websockets` 直连 NapCatQQ，无需额外安装 ncatbot
 
 ---
 
@@ -92,35 +91,30 @@ python main.py
 
 ### 📝 配置文件概览
 
-Joha 使用两个主要配置文件：
+| 配置文件 | 用途 |
+|----------|------|
+| **joha/config/config.json** | 机器人主配置（LLM、决策参数、Provider 等） |
+| **joha/config/reply_decision.json** | 回复决策参数（独立配置，热加载） |
 
-1. **config.yaml** - 消息平台连接配置
-2. **joha/config/config.json** - 机器人主配置（LLM、决策参数等）
-
-> 💡 **首次使用**: 请复制示例配置文件并修改：
+> 💡 **首次使用**: 复制示例配置文件并修改：
 > ```bash
-> cp config.example.yaml config.yaml
 > cp joha/config/config.example.json joha/config/config.json
 > ```
 
-### 1️⃣ 连接配置 — `config.yaml`
+### 1️⃣ 连接配置 — `main.py`
 
-消息平台连接参数：
+WebSocket 连接参数直接在 `main.py` 的 BotClient 构造函数中设置：
 
-```yaml
-root: ''          # 超级管理员 ID
-bt_uin: ''         # 机器人 ID
-napcat:
-  ws_uri: ws://localhost:3002    # WebSocket 连接地址
-  ws_token: token           # WebSocket 鉴权 Token
-  webui_uri: http://localhost:6098  # NapCat WebUI
+```python
+from joha.sdk import BotClient
+
+bot = BotClient(
+    ws_url="ws://localhost:3002",   # NapCatQQ WebSocket 地址
+    access_token="",                 # 鉴权 Token（如需要）
+)
 ```
 
-### 2️⃣ 主配置 — `joha/config/config.json`
-
-包含所有运行参数，主要模块：
-
-#### 🤖 LLM 模型配置
+### 2️⃣ LLM 配置 — `joha/config/config.json`
 
 可配置多个 Provider，运行时通过命令切换：
 
@@ -149,7 +143,7 @@ napcat:
 }
 ```
 
-#### 🧠 回复决策参数
+### 3️⃣ 回复决策参数 — `joha/config/reply_decision.json`
 
 核心调参区域，影响机器人的"话多话少"：
 
@@ -163,7 +157,9 @@ napcat:
 | `group_dynamic.very_busy_score` | -0.8 | 非常活跃群减分 |
 | `group_dynamic.dead_score` | 0.3 | 冷清群加分 |
 
-#### 📨 消息队列配置
+> 💡 修改后无需重启，调用 `/知识库刷新` 或执行 `reply_cfg.reload()` 即可热加载
+
+### 📨 消息队列配置
 
 ```json
 {
@@ -226,39 +222,55 @@ napcat:
 ### 项目结构
 
 ```
-main.py                    ← 入口：启动 Bot，注册群消息事件
+main.py                    ← 入口：启动 SDK BotClient，注册群消息事件
   │
   └─ joha/                 ← 核心包
-       ├─ core/            ← 编排入口层（分拆为三个子模块）
-       │    ├─ handlers/        — 处理器模块
-       │    │    ├─ message.py        — 消息接收与预处理
-       │    │    ├─ service.py        — 核心业务逻辑（学习 + 回复分离）
-       │    │    └─ commands.py       — 命令处理
-       │    ├─ builders/        — 构建器模块
-       │    │    ├─ message_builder.py— LLM 上下文构建
-       │    │    └─ message_queue.py  — 消息队列合并
+       ├─ sdk/             ← RqhBot SDK（自研消息平台 SDK）
+       │    ├─ core/            — WebSocket 客户端、API、事件模型
+       │    ├─ config/          — 配置管理、日志系统
+       │    └─ pluginsystem/    — 插件系统
+       │
+       ├─ core/            ← 编排入口层
+       │    ├─ handlers/        — 消息接收与预处理
+       │    │    ├─ message_handler.py   — 消息接收、@/回复检测、队列合并
+       │    │    ├─ service.py           — 核心业务逻辑（学习 + 回复分离）
+       │    │    └─ commands.py          — 命令处理
+       │    ├─ builders/        — LLM 上下文构建
+       │    │    ├─ message_builder.py   — 上下文组装（含 RAG 检索）
+       │    │    └─ message_queue.py     — 消息队列合并
        │    └─ utils/           — 工具模块
-       │         ├─ runtime_context.py  — 运行时上下文
-       │         ├─ persona_monitor.py  — 人设监控
+       │         ├─ runtime_context.py   — 运行时上下文
+       │         ├─ persona_monitor.py   — 人设监控
+       │         ├─ tool_registry.py     — 工具注册表（自动发现）
        │         ├─ response_postprocessor.py — 回复后处理
-       │         └─ clean_history.py    — 历史记录清洗
+       │         ├─ image_utils.py       — 图片格式转换
+       │         └─ clean_history.py     — 历史记录清洗
        │
        ├─ ai/              ← AI 驱动层
-       │    ├─ clients.py        — AI 客户端抽象
+       │    ├─ clients.py        — AI 客户端抽象（多 Provider 适配）
        │    ├─ providers.py      — Provider 管理器
        │    ├─ bot.py            — AI Bot 封装
        │    ├─ generator.py      — 回复生成器
        │    └─ classifier.py     — 意图分类器
        │
-       ├─ decision/        ← 决策大脑层
-       │    ├─ reply_decision.py — 回复决策引擎
-       │    ├─ reply_config.py   — 决策配置加载
-       │    ├─ intent_classifier.py— 意图分类
-       │    ├─ command_analyzer.py— 指令分析
-       │    ├─ group_state.py    — 群组状态追踪
-       │    ├─ cooldown.py       — 冷却管理
-       │    ├─ knowledge/        — 知识库模块 (RAG)
-       │    └─ tools/            — 工具（搜索等）
+       ├─ decision/        ← 决策大脑层（扁平结构，无子目录）
+       │    ├─ decision_engine.py  — 决策引擎（总分架构的"总"）
+       │    ├─ reply_decision.py   — 回复决策（Logit + Sigmoid）
+       │    ├─ reply_config.py     — 决策配置加载器
+       │    ├─ intent_classifier.py— AI 意图识别
+       │    ├─ command_analyzer.py — 自然语言命令分析
+       │    ├─ group_state.py      — 群组状态追踪
+       │    ├─ cooldown.py         — 冷却管理
+       │    └─ reply_config.py     — 决策配置懒加载
+       │
+       ├─ tools/           ← 工具层
+       │    ├── knowledge/        — 知识库子包（RAG 引擎，分片存储）
+       │    │    ├── __init__.py
+       │    │    └── base.py          — KnowledgeBase、BM25 索引
+       │    ├── search.py         — 网络搜索工具
+       │    ├── webpage.py        — 网页抓取工具
+       │    ├── link_preview.py   — 链接预览工具
+       │    └── knowledge_search.py — 知识库搜索工具
        │
        ├─ managers/        ← 数据管理层
        │    ├─ personas.py       — 人设管理
@@ -267,34 +279,40 @@ main.py                    ← 入口：启动 Bot，注册群消息事件
        │    ├─ user_profile.py   — 用户画像
        │    └─ admin.py          — 管理员管理
        │
-       └─ config/         ← 配置与基础设施（分拆为两个子模块）
-            ├─ managers/        — 配置管理器模块
-            │    ├─ config_manager.py    — 配置管理器（支持环境变量覆盖）
+       └─ config/         ← 配置与基础设施
+            ├─ managers/          — 配置管理器
+            │    ├─ config_manager.py    — 主配置（JSON + 环境变量覆盖）
             │    └─ group_mode_config.py — 群组模式配置
-            └─ infrastructure/  — 基础设施模块
-                 ├─ logger.py           — 日志系统（文件轮转、多级别）
-                 └─ cache.py            — 缓存系统（LRU 缓存）
+            ├─ infrastructure/    — 基础设施
+            │    ├─ logger.py           — 日志系统
+            │    └─ cache.py            — LRU 缓存
+            ├─ config.example.json      — 配置示例
+            └─ reply_decision.json      — 回复决策参数（独立配置文件）
 ```
 
 ### 🔄 消息处理流程
 
 ```
-群消息 → ncatbot 接收
+群消息 → NapCatQQ
+         → WebSocket → RqhBot SDK (NapCatClient)
+         → GroupMessageEvent 发布
          → MessageProcessor.process_group_message()
+            → 消息文本/图片提取
+            → 命令预处理（斜杠命令直通返回）
+            → @/回复检测
             → 消息队列合并（短时间多条消息）
-            → 命令预处理（/命令）
             → MessageService.process_message()
                 → 判断群组模式（active/passive）
                 → 学习阶段：记录历史 + 学习风格
-                → 决策阶段：计算回复概率
-                   (上下文 → Logit累加 → Sigmoid归一化 → 阈值比较)
+                → 决策阶段：DecisionEngine 流水线
+                   (build_context → intent_classifier → compute_reply_prob → should_reply)
                 → 生成阶段：构建上下文 → 调用 LLM → 返回回复
-            → 发送回复到群聊
+            → BotAPI.send_group_message() 发送回复到群聊
 ```
 
 ### 🎲 回复决策引擎
 
-决策引擎是 Joha 的核心亮点，通过多层因素计算回复概率：
+决策引擎是 Joha 的核心亮点，采用**总分架构**：决策引擎（总）编排全局，各子模块（分）专注单一职责。
 
 1. **反馈权重层**：是否被@、是否被回复、是否提及昵称、是否包含疑问
 2. **场景阈值层**：根据群活跃度、消息频率动态调整阈值
@@ -305,50 +323,31 @@ main.py                    ← 入口：启动 Bot，注册群消息事件
 
 最终概率通过 Sigmoid 函数归一化到 [0, 1]，与阈值比较决定是否回复。
 
-### 📦 Core 模块结构
+### 🧰 工具系统
 
-Core 模块采用分层设计，分拆为三个子模块：
+工具层 `joha/tools/` 采用**函数 + 元信息**模式，支持自动发现注册：
 
-| 子模块 | 职责 | 包含文件 |
-|--------|------|----------|
-| **handlers/** | 处理器模块 - 消息接收、处理和业务逻辑 | message.py, service.py, commands.py |
-| **builders/** | 构建器模块 - 构建数据结构和上下文 | message_builder.py, message_queue.py |
-| **utils/** | 工具模块 - 辅助功能和工具类 | runtime_context.py, persona_monitor.py, response_postprocessor.py, clean_history.py |
+| 工具 | 说明 |
+|------|------|
+| **search** | 网络搜索（可配置搜索 API） |
+| **webpage** | 网页内容抓取 |
+| **link_preview** | 链接预览 |
+| **knowledge** | 本地知识库检索（RAG，基于 BM25 算法） |
 
-**导入示例：**
-```python
-# 从主入口导入（推荐）
-from joha.core import message_service, message_handler, command_handler
-
-# 从子模块导入
-from joha.core.handlers import message_service
-from joha.core.builders import message_builder
-from joha.core.utils import runtime_context
-```
-
-详细结构说明请查看 `joha/core/README.md`。
+知识库引擎位于 `joha/tools/knowledge/`，采用**分片式 JSON 存储**（每片 100 条），自动扩展、增量热重载。
 
 ### ⚙️ Config 模块结构
 
-Config 模块采用分层设计，分拆为两个子模块：
+Config 模块采用分层设计：
 
 | 子模块 | 职责 | 包含文件 |
 |--------|------|----------|
-| **managers/** | 配置管理器 - 配置加载、管理和持久化 | config_manager.py, group_mode_config.py |
-| **infrastructure/** | 基础设施 - 日志和缓存服务 | logger.py, cache.py |
+| **managers/** | 配置管理器 | config_manager.py, group_mode_config.py |
+| **infrastructure/** | 基础设施 | logger.py, cache.py |
 
-**导入示例：**
-```python
-# 从主入口导入（推荐）
-from joha.config import config, johalog_logger, LRUCache, group_mode_config
-
-# 从子模块导入
-from joha.config.managers import config, group_mode_config
-from joha.config.infrastructure import johalog_logger, LRUCache
-```
-
-**主要功能：**
-- **配置管理**：支持 JSON 配置文件和环境变量覆盖
+**主要特性：**
+- **配置管理**：JSON 配置文件 + 环境变量覆盖（`JOHA_` 前缀）
+- **回复决策参数**：独立 `reply_decision.json`，热加载无需重启
 - **日志系统**：多级别日志、文件轮转、预定义日志记录器
 - **缓存系统**：LRU 缓存、TTL 过期、函数结果缓存装饰器
 
@@ -396,22 +395,19 @@ Joha 使用基于多维度参数的精细化人设系统，通过调整性格特
 ```
 Joha/
 ├── main.py                  # 入口文件
-├── config.yaml              # ncatbot 连接配置
-├── config.example.yaml      # 配置示例（复制后使用）
 ├── requirements.txt         # Python 依赖
 ├── README.md                # 本文件
 │
 ├── joha/                    # 核心代码包
+│   ├── sdk/                # RqhBot SDK
 │   ├── core/               # 编排入口层
 │   ├── ai/                 # AI 驱动层
 │   ├── decision/           # 决策大脑层
+│   ├── tools/              # 工具层（含 knowledge 子包）
 │   ├── managers/           # 数据管理层
 │   └── config/             # 配置与基础设施
 │
-├── data/                    # 数据目录
-├── logs/                    # 运行日志
-├── napcat/                  # NapCat 相关
-└── plugins/                 # 插件目录
+└── logs/                    # 运行日志
 ```
 
 ### 💾 存储目录 `joha/storage/`
@@ -425,7 +421,7 @@ Joha/
 | `history/` | 聊天历史记录 |
 | `styles/` | 风格学习数据 |
 | `johalog/` | 运行日志文件 |
-| `txt/` | 对话记录文本文件 |
+| `txt/` | 知识库分片文件（knowledge_*.json） |
 
 ---
 
@@ -435,9 +431,9 @@ Joha/
 <summary><b>🤔 Q: 机器人不说话？</b></summary>
 
 - 检查是否处于被动模式（使用 `/模式` 查看）
-- 检查 `thresholds.group` 是否过高，可适当调低（如从 0.55 调到 0.45）
+- 检查 `reply_decision.json` 中 `thresholds.group` 是否过高，可适当调低（如从 0.55 调到 0.45）
 - 检查 API Key 是否正确配置
-- 检查消息平台适配器是否正常运行
+- 检查 NapCatQQ 是否正常运行且 WebSocket 端口开放
 - 查看日志文件 `joha/storage/johalog/ai.log` 排查错误
 
 </details>
@@ -474,18 +470,25 @@ Joha/
 <details>
 <summary><b>📚 Q: 知识库文件存放在哪里？</b></summary>
 
-知识库数据存储在 `joha/decision/knowledge/` 目录下，支持纯文本文档格式。
+知识库数据存储在 `joha/storage/txt/` 目录下，采用分片式 JSON 格式（`knowledge_0001.json`、`knowledge_0002.json`…），每片 100 条文档，自动扩展。知识库引擎位于 `joha/tools/knowledge/`。
 
 </details>
 
 <details>
-<summary><b>⚠️ Q: 为什么必须使用 ncatbot 4.4.1？</b></summary>
+<summary><b>🔌 Q: 消息平台怎么连接？</b></summary>
 
-Joha 针对 ncatbot 4.4.1 版本进行了优化和测试，其他版本可能存在 API 兼容性问题或功能异常。请使用以下命令安装正确版本：
+Joha 使用自研 RqhBot SDK（`joha/sdk/`）通过 WebSocket 直连 NapCatQQ，无需第三方消息适配器库。在 `main.py` 中配置 WebSocket 地址：
 
-```bash
-pip install ncatbot==4.4.1
+```python
+from joha.sdk import BotClient
+
+bot = BotClient(
+    ws_url="ws://localhost:3002",   # 与 NapCatQQ 设置的端口一致
+    access_token="",
+)
 ```
+
+确保 NapCatQQ 已启动且 WebSocket 服务正常。
 
 </details>
 

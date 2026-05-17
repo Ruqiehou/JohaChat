@@ -2,6 +2,7 @@
 消息处理器 v2.0 - 处理群消息
 支持上下文感知和群组状态追踪
 集成消息队列进行智能合并
+适配 RqhBot SDK 事件模型
 
 工作流程：
 1. 提取消息内容（文本 + 图片）
@@ -12,12 +13,12 @@
 6. 调用服务层处理
 7. 发送回复
 """
-from ncatbot.core import GroupMessage
+from joha.sdk import GroupMessageEvent
 from joha.core.handlers.service import message_service
 from joha.core.handlers.commands import command_handler, normalize_fallback_command
 from joha.core.utils.runtime_context import runtime_context
 from joha.core.builders.message_queue import message_queue_manager
-from joha.core.utils.image_utils import extract_images_from_message
+from joha.core.utils.image_utils import extract_images_from_sdk_event
 from joha.config.infrastructure.logger import johalog_logger, tprint
 from joha.decision.group_state import group_state_manager
 
@@ -37,22 +38,21 @@ class MessageHandler:
     """
 
     @staticmethod
-    async def process_group_message(msg: GroupMessage, bot_api):
+    async def process_group_message(event: GroupMessageEvent, bot_api):
         """
         处理群消息（集成消息队列）
 
         Args:
-            msg: 群消息对象
-            bot_api: Bot API对象
+            event: SDK 群消息事件
+            bot_api: BotAPI 对象
         """
         # 1. 提取消息内容
-        text_segments = msg.message.filter_text()
-        actual_message = "".join(seg.text for seg in text_segments).strip()
-        userid = msg.user_id
-        group_id = str(msg.group_id)
+        actual_message = event.message.plain_text.strip()
+        userid = event.user_id
+        group_id = str(event.group_id)
         
         # 提取图片
-        image_urls = extract_images_from_message(msg)
+        image_urls = extract_images_from_sdk_event(event)
 
         # 既没有文字也没有图片，直接跳过
         if not actual_message and not image_urls:
@@ -69,7 +69,7 @@ class MessageHandler:
         # 3. 处理斜杠命令
         fallback_command = normalize_fallback_command(actual_message)
         if fallback_command:
-            handled = await command_handler.handle_command(fallback_command, str(userid), msg.group_id, bot_api)
+            handled = await command_handler.handle_command(fallback_command, str(userid), event.group_id, bot_api)
             if handled is not None or actual_message.startswith("/"):
                 return
 
@@ -78,15 +78,22 @@ class MessageHandler:
         reply_to_bot = False
         is_pure_sticker_or_image = (len(image_urls) > 0 and not actual_message)
 
-        # 检查是否@机器人
-        if hasattr(msg, 'at') and msg.at:
-            is_at_bot = any(int(at) == runtime_context.bot_uin for at in msg.at)
+        # 检查是否@机器人（从 SDK 事件解析的 at_user_ids）
+        if event.at_user_ids:
+            is_at_bot = runtime_context.bot_uin in event.at_user_ids
 
         # 检查是否回复机器人消息
-        if hasattr(msg, 'reply') and msg.reply:
-            reply_msg = msg.reply
-            if hasattr(reply_msg, 'sender') and hasattr(reply_msg.sender, 'user_id'):
-                reply_to_bot = (int(reply_msg.sender.user_id) == runtime_context.bot_uin)
+        # 使用 SDK 的 get_message API 查询被回复消息的发送者
+        if event.reply_message_id is not None:
+            try:
+                reply_data = await bot_api.get_message(event.reply_message_id)
+                if isinstance(reply_data, dict):
+                    reply_sender = reply_data.get("sender", {}) or reply_data.get("data", {}).get("sender", {})
+                    reply_user_id = reply_sender.get("user_id", 0)
+                    if int(reply_user_id) == runtime_context.bot_uin:
+                        reply_to_bot = True
+            except Exception:
+                pass
 
         # 5. 使用消息队列处理（智能合并）
         merged_msg = await message_queue_manager.add_message(
@@ -112,10 +119,10 @@ class MessageHandler:
                 images=merged_msg.images,
             )
 
-            # 7. 发送回复
+            # 7. 发送回复（使用 SDK 的 send_group_message）
             if response:
                 try:
-                    await bot_api.post_group_msg(group_id=msg.group_id, text=response)
+                    await bot_api.send_group_message(group_id=event.group_id, message=response)
                     # 记录机器人回复到群组状态
                     group_state_manager.record_bot_reply(group_id=group_id, text=response)
                 except Exception as e:

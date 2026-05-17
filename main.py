@@ -1,21 +1,17 @@
-from ncatbot.core import BotClient, GroupMessage
-from ncatbot.utils import config
 import asyncio
 
+from joha.sdk import BotClient, GroupMessageEvent
 from joha.core.handlers import message_handler
 from joha.core.utils import runtime_context
 from joha.core.builders import message_queue_manager
 
-# ncatbot 配置（硬编码）
-config.set_bot_uin(bot_uin="")
-config.set_root(root="")
-config.set_ws_uri(ws_uri="ws://localhost:3002")
-config.set_ws_token(ws_token="")
-config.set_webui_uri(webui_uri="http://localhost:6098")
-config.set_webui_token(webui_token="")
 runtime_context.bot_uin = 8888888888
 
-bot = BotClient()
+# 使用 SDK 的 BotClient（WebSocket 直连 NapCat）
+bot = BotClient(
+    ws_url="ws://localhost:3002",
+    access_token="",
+)
 
 
 async def process_expired_queues():
@@ -34,13 +30,13 @@ async def process_expired_queues():
 
 
 @bot.on_group_message()
-async def joha_agent(msg: GroupMessage):
+async def joha_agent(event: GroupMessageEvent):
     # 启动后台任务（只启动一次）
     if not hasattr(joha_agent, '_queue_task_started'):
         joha_agent._queue_task_started = True
         asyncio.create_task(process_expired_queues())
     
-    await message_handler.process_group_message(msg, bot.api)
+    await message_handler.process_group_message(event, bot.api)
 
 
 try:

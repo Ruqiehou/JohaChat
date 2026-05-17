@@ -171,7 +171,7 @@ class CommandHandler:
         # 管理员专属命令
         if not is_admin(userid):
             if response:
-                await bot_api.post_group_msg(group_id=msg_group_id, text=response)
+                await bot_api.send_group_message(group_id=msg_group_id, message=response)
             return response
         
         if cmd in ["/帮助", "/help", "/h"]:
@@ -377,7 +377,7 @@ class CommandHandler:
                 response += "\n\n" + "\n".join(alerts)
 
         if response:
-            await bot_api.post_group_msg(group_id=msg_group_id, text=response)
+            await bot_api.send_group_message(group_id=msg_group_id, message=response)
 
         return response
 
