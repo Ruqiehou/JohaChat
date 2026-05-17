@@ -15,6 +15,7 @@
 
 import os
 import re
+import json
 import math
 import time
 from datetime import datetime, timedelta
@@ -169,7 +170,7 @@ class KnowledgeBase:
             txt_dir: 文本文件目录路径，默认 joha/storage/txt
         """
         if txt_dir is None:
-            current_file_dir = Path(__file__).parent.parent.parent
+            current_file_dir = Path(__file__).resolve().parent.parent.parent
             self.txt_dir = current_file_dir / "storage" / "txt"
         else:
             self.txt_dir = Path(txt_dir)
@@ -809,22 +810,3 @@ def search_knowledge_base(query: str, top_k: int = 5, **kwargs) -> List[Dict]:
     """便捷函数：直接搜索知识库"""
     kb = get_knowledge_base()
     return kb.search(query, top_k=top_k, **kwargs)
-
-
-if __name__ == "__main__":
-    kb = get_knowledge_base()
-    stats = kb.get_statistics()
-    print(f"知识库统计:")
-    print(f"  文档数: {stats['total_documents']}")
-    print(f"  总字数: {stats['total_words']}")
-    print(f"  平均字数: {stats['avg_words_per_doc']}")
-    if stats['date_range']:
-        print(f"  时间范围: {stats['date_range']['earliest']} ~ {stats['date_range']['latest']}")
-    
-    # 测试搜索
-    test_queries = ["python", "go语言", "插件中台", "高并发"]
-    for q in test_queries:
-        results = kb.search(q, top_k=3)
-        print(f"\n搜索 '{q}':")
-        for r in results:
-            print(f"  [{r['score']:.3f}] {r['title'][:40]}...")

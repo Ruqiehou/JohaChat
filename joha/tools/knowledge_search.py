@@ -4,7 +4,7 @@
 """
 from typing import Dict, List, Optional
 from datetime import datetime
-from joha.decision.knowledge.base import get_knowledge_base
+from joha.tools.knowledge.base import get_knowledge_base
 
 
 class KnowledgeBaseSearchTool:
