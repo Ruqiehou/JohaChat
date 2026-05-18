@@ -41,17 +41,19 @@ class ToolRegistry:
             return 0
 
         count = 0
-        for filename in sorted(os.listdir(tools_dir)):
-            if not filename.endswith(".py") or filename.startswith("_"):
+        # 1. 新格式：扫描子目录 tools/<name>/tool.py
+        for subdir in sorted(os.listdir(tools_dir)):
+            subdir_path = os.path.join(tools_dir, subdir)
+            if not os.path.isdir(subdir_path) or subdir.startswith("_"):
                 continue
 
-            module_name = filename[:-3]
-            filepath = os.path.join(tools_dir, filename)
+            tool_file = os.path.join(subdir_path, "tool.py")
+            if not os.path.isfile(tool_file):
+                continue
 
             try:
-                # 动态导入模块
                 spec = importlib.util.spec_from_file_location(
-                    f"joha.tools.{module_name}", filepath
+                    f"joha.tools.{subdir}.tool", tool_file
                 )
                 if spec is None or spec.loader is None:
                     continue
@@ -59,18 +61,49 @@ class ToolRegistry:
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
 
-                # 检查是否符合新式工具规范（TOOL_META + execute）
                 meta = getattr(module, "TOOL_META", None)
                 execute_fn = getattr(module, "execute", None)
 
                 if meta and execute_fn and callable(execute_fn):
-                    self._register_from_meta(meta, execute_fn, filepath)
+                    self._register_from_meta(meta, execute_fn, tool_file)
                     count += 1
-                    tprint("info", f"[ToolRegistry] 发现工具: {meta['name']} ({filepath})")
-
+                    tprint("info", f"[ToolRegistry] 发现工具: {meta['name']} ({tool_file})")
             except Exception as e:
-                tprint("warning", f"[ToolRegistry] 加载工具失败 {filename}: {e}")
+                tprint("warning", f"[ToolRegistry] 加载工具失败 {subdir}: {e}")
                 traceback.print_exc()
+
+        # 2. 旧格式兼容：扫描顶层 *_tool.py 或 *.py（过渡期）
+        for filename in sorted(os.listdir(tools_dir)):
+            if not filename.endswith(".py") or filename.startswith("_"):
+                continue
+
+            filepath = os.path.join(tools_dir, filename)
+            if os.path.isdir(filepath):
+                continue
+
+            module_name = filename[:-3]
+            if filename.endswith("_tool.py"):
+                # 旧格式 *_tool.py 文件
+                try:
+                    spec = importlib.util.spec_from_file_location(
+                        f"joha.tools.{module_name}", filepath
+                    )
+                    if spec is None or spec.loader is None:
+                        continue
+
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+
+                    meta = getattr(module, "TOOL_META", None)
+                    execute_fn = getattr(module, "execute", None)
+
+                    if meta and execute_fn and callable(execute_fn):
+                        self._register_from_meta(meta, execute_fn, filepath)
+                        count += 1
+                        tprint("info", f"[ToolRegistry] 发现工具(旧格式): {meta['name']} ({filepath})")
+                except Exception as e:
+                    tprint("warning", f"[ToolRegistry] 加载工具失败 {filename}: {e}")
+                    traceback.print_exc()
 
         tprint("info", f"[ToolRegistry] 自动发现完成，共 {count} 个工具")
         return count
