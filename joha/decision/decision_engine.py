@@ -151,7 +151,7 @@ class DecisionEngine:
             return None
 
         from joha.tools import SearchTool, WebpageTool
-        from joha.tools.knowledge.base import search_knowledge_base
+        from joha.tools.knowledge.core import search_knowledge_base
         tool_map = {
             "search": lambda q: SearchTool().search(q),
             "knowledge": lambda q: search_knowledge_base(q),

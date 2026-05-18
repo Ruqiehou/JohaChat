@@ -65,7 +65,7 @@ def save_conversation(question: str, response: str):
     """保存对话记录到知识库（使用结构化 JSON 格式）"""
     try:
         # 直接添加到知识库，由 KnowledgeBase 统一管理分片存储
-        from joha.tools.knowledge.base import get_knowledge_base
+        from joha.tools.knowledge.core import get_knowledge_base
         
         kb = get_knowledge_base()
         kb.add_document(
@@ -94,7 +94,7 @@ class MessageService:
         self.failed_replies = 0
         
         # 初始化知识库
-        from joha.tools.knowledge.base import get_knowledge_base
+        from joha.tools.knowledge.core import get_knowledge_base
         self.knowledge_base = get_knowledge_base()
         message_builder.knowledge_base = self.knowledge_base
         johalog_logger.info(f"已加载 {len(self.knowledge_base.get_all_documents())} 个知识库文档")
