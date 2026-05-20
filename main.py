@@ -1,6 +1,6 @@
 import asyncio
 
-from joha.sdk import BotClient, GroupMessageEvent
+from joha.adapter import BotClient, GroupMessageEvent
 from joha.core.handlers import message_handler
 from joha.core.utils import runtime_context
 from joha.core.builders import message_queue_manager

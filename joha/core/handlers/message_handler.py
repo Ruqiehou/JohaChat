@@ -13,7 +13,7 @@
 6. 调用服务层处理
 7. 发送回复
 """
-from joha.sdk import GroupMessageEvent
+from joha.adapter import GroupMessageEvent
 from joha.core.handlers.service import message_service
 from joha.core.handlers.commands import command_handler, normalize_fallback_command
 from joha.core.utils.runtime_context import runtime_context

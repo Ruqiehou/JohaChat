@@ -1,6 +1,6 @@
 """
-RqhBot SDK —— 主入口模块
-提供机器人开发功能：连接、事件、API、配置管理
+Joha Adapter —— 主入口模块
+NapCat 适配层：连接、事件、API、配置管理
 """
 
 from __future__ import annotations
