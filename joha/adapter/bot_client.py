@@ -9,9 +9,9 @@ import asyncio
 import logging
 from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeAlias
 
-from sdk.config import setup_logging
-from sdk.core import BotAPI, NapCatClient
-from sdk.core.events import (
+from adapter.config import setup_logging
+from adapter.core import BotAPI, NapCatClient
+from adapter.core.events import (
     GroupMessageEvent,
     NoticeEvent,
     PrivateMessageEvent,
@@ -212,7 +212,7 @@ class BotClient:
     @classmethod
     def run(cls) -> None:
         """一键启动：从 config.yaml 读取配置并运行机器人"""
-        from sdk.config import config_manager
+        from adapter.config import config_manager
 
         bot = cls(
             ws_url=config_manager.get("napcat.ws_url", "ws://localhost:3001"),

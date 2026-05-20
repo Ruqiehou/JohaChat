@@ -12,8 +12,8 @@ from typing import (
 import websockets
 from websockets.exceptions import ConnectionClosed
 
-from sdk.config import Config, setup_logging
-from sdk.core.interfaces import IClient, IConnectionEventListener, MessageSegmentType
+from adapter.config import Config, setup_logging
+from adapter.core.interfaces import IClient, IConnectionEventListener, MessageSegmentType
 
 # 设置日志系统
 setup_logging()

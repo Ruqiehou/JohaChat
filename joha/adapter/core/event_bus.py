@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import Any, Awaitable, Callable, Dict, List, Type, TypeVar
 
-from sdk.core.events import BaseEvent
+from adapter.core.events import BaseEvent
 
 logger = logging.getLogger(__name__)
 

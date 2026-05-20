@@ -8,8 +8,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional, TypeAlias
 
-from sdk.core.client import NapCatClient
-from sdk.core.interfaces import MessageSegmentType
+from adapter.core.client import NapCatClient
+from adapter.core.interfaces import MessageSegmentType
 
 logger = logging.getLogger(__name__)
 

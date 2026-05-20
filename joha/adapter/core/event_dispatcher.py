@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, TypedDict, Union
 
-from sdk.core.interfaces import IEventDispatcher
+from adapter.core.interfaces import IEventDispatcher
 
 logger = logging.getLogger(__name__)
 
