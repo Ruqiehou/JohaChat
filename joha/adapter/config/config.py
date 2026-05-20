@@ -163,6 +163,16 @@ class ConfigManager:
         self.set("napcat.webui_token", webui_token)
         self._save_config()
 
+    def set_napcat_dir(self, napcat_dir: str) -> None:
+        """设置 NapCat 目录"""
+        self.set("napcat.napcat_dir", napcat_dir)
+        self._save_config()
+
+    def set_auto_start(self, auto_start: bool) -> None:
+        """设置是否自动启动 NapCat"""
+        self.set("napcat.auto_start", auto_start)
+        self._save_config()
+
     # ==================== Bot 配置 ====================
 
     def set_load_plugins(self, load_plugins: bool) -> None:

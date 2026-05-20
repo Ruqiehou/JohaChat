@@ -12,6 +12,8 @@ napcat:
   root: ""                             # 管理员 QQ 号
   webui_uri: http://localhost:6098     # NapCat WebUI 地址
   webui_token: ""                      # WebUI 访问令牌
+  auto_start: false                    # 是否自动启动 NapCat（连接失败时）
+  napcat_dir: napcat                   # NapCat 目录路径（相对于项目根目录）
 
 settings:
   debug: true                          # 调试模式
