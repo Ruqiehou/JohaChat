@@ -11,8 +11,7 @@ from joha.config.infrastructure.logger import tprint
 
 class MessageBuilder:
 
-    def __init__(self, knowledge_base=None):
-        self.knowledge_base = knowledge_base
+    def __init__(self):
         self.tool_registry = None
 
     def build(
@@ -52,15 +51,6 @@ class MessageBuilder:
             style_prompt = style_learner.get_user_style_prompt(user_id)
             if style_prompt:
                 system_prompt += "\n\n" + style_prompt
-
-        if include_rag and self.knowledge_base and message and not images:
-            rag_context = self._build_rag_context(message, rag_top_k, rag_min_score)
-            if rag_context:
-                system_prompt += (
-                    "\n\n【以下是你记忆中的相关知识，回复时可以参考，但不要直接复制，"
-                    "要用自己的话自然表达。如果知识和当前话题无关，请忽略。】\n\n"
-                    + rag_context
-                )
 
         # 注入工具描述（如果 ToolRegistry 已初始化且有工具）
         if self.tool_registry:
@@ -124,26 +114,6 @@ class MessageBuilder:
                 return True
         
         return False
-
-    def _build_rag_context(self, message: str, top_k: int, min_score: float) -> str:
-        try:
-            kb_results = self.knowledge_base.search(
-                query=message, top_k=top_k, min_score=min_score, dedup=True
-            )
-            if not kb_results:
-                return ""
-
-            rag_parts = []
-            for i, doc in enumerate(kb_results, 1):
-                q = doc.get("user_question", "")[:120]
-                a = doc.get("ai_response", "")[:300]
-                if q and a:
-                    rag_parts.append(f"[知识{i}] 问题：{q}\n回答：{a}")
-
-            return "\n\n".join(rag_parts) if rag_parts else ""
-        except Exception as e:
-            tprint("warning", f"[MessageBuilder] RAG 检索失败: {e}")
-            return ""
 
 
 message_builder = MessageBuilder()

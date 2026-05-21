@@ -26,6 +26,7 @@ from .core import (
     PrivateMessageEvent,
     RequestEvent,
 )
+from .napcat_launcher import ensure_napcat_running
 
 __version__: str = "3.5.0"
 
@@ -50,5 +51,6 @@ __all__: list[str] = [
     "Config",
     "setup_logging",
     "BotClient",
+    "ensure_napcat_running",
     "__version__",
 ]

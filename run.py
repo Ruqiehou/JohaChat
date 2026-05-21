@@ -4,12 +4,11 @@ Joha 统一启动入口
 """
 import asyncio
 
-from joha.adapter import BotClient, GroupMessageEvent
+from joha.adapter import BotClient, GroupMessageEvent, ensure_napcat_running
 from joha.adapter.config import config_manager
 from joha.core.handlers import message_handler
 from joha.core.utils import runtime_context
 from joha.core.builders import message_queue_manager
-from joha.run_adapter import ensure_napcat_running
 
 _napcat_cfg = config_manager.get("napcat", {})
 _bot_uin = _napcat_cfg.get("bot_uin", "8888888888")

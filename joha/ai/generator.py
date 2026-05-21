@@ -150,6 +150,22 @@ class Generator:
             tprint("error", f"[AI] 生成失败：{e}")
             return None
 
+    def chat_sync(self, messages: list, temperature=0.6, max_tokens=1024) -> Optional[str]:
+        """同步生成接口（用于工具调用等场景）"""
+        try:
+            result = self._cached_chat(
+                self._model,
+                tuple(messages),
+                temperature,
+                max_tokens
+            )
+            return result
+        except Exception as e:
+            self._error_count += 1
+            logger.error(f"生成失败：{e}", exc_info=True)
+            tprint("error", f"[AI] 生成失败：{e}")
+            return None
+
     def _build_messages(self, question: str, userid: str = None, group_id: Optional[str] = None) -> List[Dict[str, str]]:
         hour = datetime.datetime.now().hour
 

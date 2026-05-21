@@ -93,12 +93,6 @@ class MessageService:
         self.generated_replies = 0
         self.failed_replies = 0
         
-        # 初始化知识库
-        from joha.tools.knowledge.core import get_knowledge_base
-        self.knowledge_base = get_knowledge_base()
-        message_builder.knowledge_base = self.knowledge_base
-        johalog_logger.info(f"已加载 {len(self.knowledge_base.get_all_documents())} 个知识库文档")
-        
         # 初始化 Tool Registry（自动发现工具）
         self.tool_registry = tool_registry
         discovered = self.tool_registry.auto_discover()
@@ -226,7 +220,7 @@ class MessageService:
                 persona_name="joha",
                 history=history,
                 include_style=True,
-                include_rag=True,
+                include_rag=False,
                 group_id=group_id,
             )
 
@@ -341,16 +335,8 @@ class MessageService:
             f"被动群组: {stats['passive_groups']}\n"
             f"追踪群组: {stats['tracked_groups']}\n"
             f"群总消息: {stats['group_total_messages']}\n"
-            f"知识库文档数: {len(self.knowledge_base.get_all_documents())}\n"
             f"=================="
         )
-    
-    def refresh_knowledge_base(self) -> int:
-        """刷新知识库，重新加载所有文档"""
-        self.knowledge_base.refresh()
-        count = len(self.knowledge_base.get_all_documents())
-        johalog_logger.info(f"知识库已刷新，当前文档数: {count}")
-        return count
 
 
 # 全局服务实例

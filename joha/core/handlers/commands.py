@@ -9,7 +9,6 @@ from joha.managers.style_learner import style_learner
 from joha.config.managers.config_manager import config
 # generator 仅在 /切换模型 命令中延迟导入，避免 LLM 未配置时影响其他管理命令
 from joha.core.utils.persona_monitor import persona_monitor
-from joha.tools import get_kb_search_tool
 from joha.managers.personas import (
     list_personas, persona_info, switch_persona,
     create_persona, delete_persona, set_group_persona, get_group_persona_name,
@@ -202,12 +201,6 @@ class CommandHandler:
                 "  /模型        - 查看可用对话模型列表\n"
                 "  /当前模型    - 查看当前使用的对话模型\n"
                 "  /切换模型 名称 - 切换到指定对话模型\n\n"
-                "📚 知识库：\n"
-                "  /知识库统计      - 查看知识库统计\n"
-                "  /知识库刷新      - 刷新知识库索引\n"
-                "  /知识库搜索 关键词 - 搜索知识库\n"
-                "  /知识库添加 问题|回答 - 添加新知识\n"
-                "  /知识库重复      - 查找重复文档\n\n"
                 "📊 决策反馈：\n"
                 "  /好评 - 机器人回复得好\n"
                 "  /差评 - 机器人回复多余或不好\n"
@@ -396,33 +389,6 @@ class CommandHandler:
 
         elif cmd == "/模型状态":
             response = "💡 使用 /当前模型 查看当前模型信息，/模型 查看可用列表"
-
-        # ── 知识库管理 ──
-        elif cmd == "/知识库统计":
-            kb_tool = get_kb_search_tool()
-            response = kb_tool.get_statistics()
-
-        elif cmd == "/知识库刷新":
-            kb_tool = get_kb_search_tool()
-            response = kb_tool.refresh()
-
-        elif cmd == "/知识库搜索" and len(parts) >= 2:
-            kb_tool = get_kb_search_tool()
-            query = parts[1]
-            response = kb_tool.search(query, num_results=5)
-
-        elif cmd == "/知识库添加" and len(parts) >= 2:
-            kb_tool = get_kb_search_tool()
-            content = parts[1]
-            if "|" in content:
-                question, answer = content.split("|", 1)
-                response = kb_tool.add_knowledge(question.strip(), answer.strip())
-            else:
-                response = "格式错误，请使用：/知识库添加 问题|回答"
-
-        elif cmd == "/知识库重复":
-            kb_tool = get_kb_search_tool()
-            response = kb_tool.find_duplicates()
 
         # ── 人设管理 ──
         elif cmd in ["/人设", "/人设状态", "/稳定性"]:

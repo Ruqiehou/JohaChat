@@ -13,6 +13,7 @@
 6. 调用服务层处理
 7. 发送回复
 """
+import re
 from joha.adapter import GroupMessageEvent
 from joha.core.handlers.service import message_service
 from joha.core.handlers.commands import command_handler, normalize_fallback_command
@@ -122,7 +123,21 @@ class MessageHandler:
             # 7. 发送回复（使用 SDK 的 send_group_message）
             if response:
                 try:
-                    await bot_api.send_group_message(group_id=event.group_id, message=response)
+                    # 检测工具返回中是否包含截图路径
+                    screenshot_match = re.search(r'📁\s*(.+\.png)', response)
+                    
+                    if screenshot_match:
+                        # 提取截图路径并发送图文消息
+                        screenshot_path = screenshot_match.group(1).strip()
+                        await bot_api.send_group_message(
+                            group_id=int(event.group_id),
+                            message=response,
+                            image_path=screenshot_path,
+                        )
+                    else:
+                        # 普通文本消息
+                        await bot_api.send_group_message(group_id=event.group_id, message=response)
+                    
                     # 记录机器人回复到群组状态
                     group_state_manager.record_bot_reply(group_id=group_id, text=response)
                 except Exception as e:

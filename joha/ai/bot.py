@@ -5,7 +5,7 @@
 """
 from typing import List, Dict, Optional
 from joha.ai.clients import create_client_from_provider, BaseAIClient
-from joha.tools import SearchTool, WebpageTool, kb_search_tool
+from joha.tools import SearchTool, WebpageTool
 from joha.ai.providers import provider_manager
 from joha.config.infrastructure.logger import tprint
 
@@ -79,26 +79,6 @@ class AIBot:
                         "required": ["url"],
                     },
                 },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "search_knowledge_base",
-                    "description": (
-                        "搜索本地知识库获取历史对话和知识。"
-                        "当需要查找项目相关的历史信息、过往讨论、技术方案、群聊记录或已有解决方案时使用。"
-                        "支持按时间范围搜索（days 参数）。"
-                    ),
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "query": {"type": "string", "description": "搜索查询关键词"},
-                            "num_results": {"type": "integer", "description": "返回结果数量，默认5", "default": 5},
-                            "days": {"type": "integer", "description": "仅搜索最近 N 天的内容，不填则搜索全部", "default": None},
-                        },
-                        "required": ["query"],
-                    },
-                },
             }
         ]
     
@@ -107,7 +87,6 @@ class AIBot:
         return {
             "search_web": lambda args: self._handle_search(args),
             "fetch_webpage": lambda args: self._handle_webpage(args),
-            "search_knowledge_base": lambda args: self._handle_knowledge_search(args)
         }
     
     def _handle_search(self, args: Dict) -> str:
@@ -128,20 +107,6 @@ class AIBot:
             return self.webpage_tool.fetch(url)
         except Exception as e:
             return f"抓取失败: {str(e)}"
-
-    def _handle_knowledge_search(self, args: Dict) -> str:
-        """处理知识库搜索请求"""
-        query = args.get("query", "")
-        num_results = args.get("num_results", 5)
-        days = args.get("days")
-        tprint("info", f"[工具调用] 知识库搜索: {query} (days={days})")
-        try:
-            kwargs = {}
-            if days is not None:
-                kwargs["days"] = days
-            return kb_search_tool.search(query, num_results, **kwargs)
-        except Exception as e:
-            return f"知识库搜索失败: {str(e)}"
 
     def _register_tools_to_client(self, client: BaseAIClient):
         """注册工具到指定客户端"""
@@ -255,7 +220,6 @@ def get_ai_bot() -> AIBot:
                 "\n\n你拥有以下工具："
                 "\n1. search_web - 搜索互联网获取最新信息（如新闻、天气、实时数据）"
                 "\n2. fetch_webpage - 抓取并提取网页内容（当用户发送链接时）"
-                "\n3. search_knowledge_base - 搜索本地知识库获取历史对话和知识"
                 "\n\n【重要】当用户询问事实性问题、最新信息或提供链接时，你必须主动调用工具！"
                 "不要仅凭记忆回答，工具能提供更准确的答案。"
             ),
