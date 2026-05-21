@@ -3,7 +3,7 @@
 将 service._handle_active_mode 和 generator._build_messages 的重复逻辑合并
 """
 from typing import List, Dict, Optional
-from joha.managers.personas import get_persona
+from joha.managers.personas import get_persona, get_persona_by_group
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
 from joha.config.infrastructure.logger import tprint
@@ -31,7 +31,10 @@ class MessageBuilder:
     ) -> List[Dict]:
         images = images or []
 
-        persona = get_persona(persona_name)
+        if group_id and persona_name == "joha":
+            persona = get_persona_by_group(group_id)
+        else:
+            persona = get_persona(persona_name)
         system_prompt = persona.get("system_prompt",
             "你是一个真实的大学生，说话自然随意，像普通人聊天。回复简短自然，不超过20字。")
 
@@ -90,8 +93,11 @@ class MessageBuilder:
         return context_messages
 
     def build_system_prompt(self, user_id: str, persona_name: str = "joha",
-                            include_style: bool = True) -> str:
-        persona = get_persona(persona_name)
+                            include_style: bool = True, group_id: Optional[str] = None) -> str:
+        if group_id and persona_name == "joha":
+            persona = get_persona_by_group(group_id)
+        else:
+            persona = get_persona(persona_name)
         system_prompt = persona.get("system_prompt",
             "你是一个真实的大学生，说话自然随意，像普通人聊天。回复简短自然，不超过20字。")
 

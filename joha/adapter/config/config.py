@@ -26,12 +26,14 @@ YamlConfig: TypeAlias = Dict[str, Any]
 class ConfigManager:
     """YAML 配置管理器"""
 
-    def __init__(self, config_path: str = "config.yaml") -> None:
+    def __init__(self, config_path: str | None = None) -> None:
         """初始化配置管理器
 
         Args:
-            config_path: 配置文件路径
+            config_path: 配置文件路径，默认指向同目录下的 connection.yaml
         """
+        if config_path is None:
+            config_path = os.path.join(os.path.dirname(__file__), "connection.yaml")
         _raw: Path = Path(config_path)
         if not _raw.is_absolute():
             # 相对路径解析到项目根目录
@@ -171,18 +173,6 @@ class ConfigManager:
     def set_auto_start(self, auto_start: bool) -> None:
         """设置是否自动启动 NapCat"""
         self.set("napcat.auto_start", auto_start)
-        self._save_config()
-
-    # ==================== Bot 配置 ====================
-
-    def set_load_plugins(self, load_plugins: bool) -> None:
-        """设置是否加载插件"""
-        self.set("bot.load_plugins", load_plugins)
-        self._save_config()
-
-    def set_plugin_dir(self, plugin_dir: str) -> None:
-        """设置插件目录"""
-        self.set("bot.plugin_dir", plugin_dir)
         self._save_config()
 
     # ==================== 日志配置 ====================

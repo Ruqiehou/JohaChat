@@ -10,6 +10,10 @@ from joha.config.managers.config_manager import config
 # generator 仅在 /切换模型 命令中延迟导入，避免 LLM 未配置时影响其他管理命令
 from joha.core.utils.persona_monitor import persona_monitor
 from joha.tools import get_kb_search_tool
+from joha.managers.personas import (
+    list_personas, persona_info, switch_persona,
+    create_persona, delete_persona, set_group_persona, get_group_persona_name,
+)
 
 
 def is_admin(userid: str) -> bool:
@@ -92,7 +96,8 @@ FALLBACK_COMMAND_ALIASES = {
     "模型状态": "/模型状态",
     "统计": "/统计",
     "群状态": "/群状态",
-    "人设": "/人设",
+    "人设": "/人设列表",
+    "人设列表": "/人设列表",
     "人设状态": "/人设",
     "稳定性": "/人设",
 }
@@ -107,7 +112,7 @@ def normalize_fallback_command(text: str) -> Optional[str]:
     compact = "".join(raw.split())
     if compact in FALLBACK_COMMAND_ALIASES:
         return FALLBACK_COMMAND_ALIASES[compact]
-    for prefix in ["添加管理员", "删除管理员", "风格", "清除风格", "切换模型", "知识库搜索", "知识库添加"]:
+    for prefix in ["添加管理员", "删除管理员", "风格", "清除风格", "切换模型", "知识库搜索", "知识库添加", "人设信息", "切换人设", "绑定人设", "创建人设", "删除人设"]:
         if raw.startswith(prefix + " "):
             return "/" + raw
     return None
@@ -207,8 +212,14 @@ class CommandHandler:
                 "  /好评 - 机器人回复得好\n"
                 "  /差评 - 机器人回复多余或不好\n"
                 "  /群状态 - 查看当前群决策状态\n\n"
-                "👤 人设管理：\n"
-                "  /人设 - 查看人设稳定性报告\n\n"
+                "🎭 人设管理：\n"
+                "  /人设列表          - 查看所有人设\n"
+                "  /人设信息 [名称]   - 查看人设详情\n"
+                "  /切换人设 名称     - 切换全局活跃人设\n"
+                "  /绑定人设 [群号] 名称 - 绑定群到指定人设\n"
+                "  /创建人设 名称|显示名|描述 - 创建新人设\n"
+                "  /删除人设 名称     - 删除人设（不可删除 joha）\n"
+                "  /人设              - 查看人设稳定性报告\n\n"
                 "📊 其他：\n"
                 "  /统计 - 查看运行统计\n"
                 "  /帮助 - 显示此帮助信息"
@@ -294,6 +305,51 @@ class CommandHandler:
             target_user = parts[1]
             style_learner.clear_user_style(target_user)
             response = f"已清除用户 {target_user} 的风格数据"
+
+        # ── 多人设管理 ──
+        elif cmd in ["/人设列表", "/personas"]:
+            response = list_personas()
+
+        elif cmd in ["/人设信息", "/persona"]:
+            name = parts[1] if len(parts) >= 2 else ""
+            response = persona_info(name)
+
+        elif cmd == "/切换人设" and len(parts) >= 2:
+            name = parts[1]
+            if switch_persona(name):
+                response = f"✅ 已切换到人设: {name}"
+            else:
+                response = f"❌ 切换失败：未知人设 '{name}'，使用 /人设列表 查看可用人设"
+
+        elif cmd == "/创建人设" and len(parts) >= 2:
+            args = parts[1].split("|", 2)
+            name = args[0].strip()
+            display_name = args[1].strip() if len(args) >= 2 else ""
+            description = args[2].strip() if len(args) >= 3 else ""
+            if create_persona(name, display_name=display_name, description=description):
+                response = f"✅ 已创建人设: {name}"
+            else:
+                response = f"❌ 创建失败，人设 '{name}' 可能已存在"
+
+        elif cmd == "/删除人设" and len(parts) >= 2:
+            name = parts[1]
+            if delete_persona(name):
+                response = f"✅ 已删除人设: {name}"
+            else:
+                response = f"❌ 删除失败，{name} 不存在或为默认人设"
+
+        elif cmd == "/绑定人设" and len(parts) >= 3:
+            group_id = parts[1]
+            persona_name = parts[2]
+            if set_group_persona(group_id, persona_name):
+                response = f"✅ 群 {group_id} 已绑定人设: {persona_name}"
+            else:
+                response = f"❌ 绑定失败：未知人设 '{persona_name}'"
+
+        elif cmd == "/绑定人设" and len(parts) == 2:
+            gid = str(msg_group_id)
+            pname = get_group_persona_name(gid)
+            response = f"本群({gid}) 当前人设: {pname}"
 
         # ── LLM 模型切换 ──
         elif cmd in ["/模型列表", "/模型"]:
