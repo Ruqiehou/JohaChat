@@ -1,0 +1,14 @@
+napcat:
+  ws_url: ws://localhost:3002
+  access_token: ""
+  auto_start: false
+  napcat_dir: napcat
+  bot_uin: "8888888888"
+  root: ""
+  webui_uri: http://localhost:6099
+  webui_token: ""
+settings:
+  debug: true
+logging:
+  level: INFO
+  log_dir: log
