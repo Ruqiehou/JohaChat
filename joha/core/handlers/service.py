@@ -2,10 +2,8 @@
 消息处理服务
 学习和回复是两套独立的流程
 """
-import os
 import time
 import asyncio
-from datetime import datetime
 from typing import Optional, Dict, Any
 from joha.ai.generator import generator
 from joha.core.builders.message_builder import message_builder
@@ -38,46 +36,6 @@ MULTIMODAL_MODEL_PREFIXES = (
 def supports_multimodal(model_name: str) -> bool:
     model_lower = model_name.lower()
     return any(model_lower.startswith(prefix.lower()) for prefix in MULTIMODAL_MODEL_PREFIXES)
-
-
-# ==================== 工具函数 ====================
-
-def get_latest_json_file() -> str | None:
-    """获取最近一次生成的 JSON 分片文件路径"""
-    try:
-        txt_dir = os.path.join(os.path.dirname(__file__), "..", "storage", "txt")
-        if not os.path.exists(txt_dir):
-            return None
-        
-        files = [f for f in os.listdir(txt_dir) if f.startswith('knowledge_') and f.endswith('.json')]
-        if not files:
-            return None
-        
-        files.sort(reverse=True)
-        latest_file = os.path.join(txt_dir, files[0])
-        return latest_file
-    except Exception as e:
-        tprint("error", f"[获取最新记录] 错误：{e}")
-        return None
-
-
-def save_conversation(question: str, response: str):
-    """保存对话记录到知识库（使用结构化 JSON 格式）"""
-    try:
-        # 直接添加到知识库，由 KnowledgeBase 统一管理分片存储
-        from joha.tools.knowledge.core import get_knowledge_base
-        
-        kb = get_knowledge_base()
-        kb.add_document(
-            question=question,
-            response=response,
-            title=question[:50],
-        )
-        
-        tprint("info", f"[保存记录] 成功：已添加到知识库分片")
-        
-    except Exception as e:
-        tprint("error", f"[保存记录] 错误：{e}")
 
 
 class MessageService:
