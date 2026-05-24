@@ -4,7 +4,7 @@ Joha 统一启动入口
 """
 import asyncio
 
-from joha.adapter import BotClient, GroupMessageEvent, ensure_napcat_running
+from joha.adapter import MessageClient, GroupMessageEvent, ensure_napcat_running
 from joha.adapter.config import config_manager
 from joha.core.handlers import message_handler
 from joha.core.utils import runtime_context
@@ -17,7 +17,7 @@ runtime_context.bot_uin = int(_bot_uin) if _bot_uin else 8888888888
 
 ensure_napcat_running()
 
-bot = BotClient(
+client = MessageClient(
     ws_url=_napcat_cfg.get("ws_url", "ws://localhost:3002"),
     access_token=_napcat_cfg.get("access_token", ""),
 )
@@ -37,18 +37,18 @@ async def process_expired_queues():
             tprint("error", f"[定时任务] 处理过期队列失败: {e}")
 
 
-@bot.on_group_message()
+@client.on_group_message()
 async def joha_agent(event: GroupMessageEvent):
     if not hasattr(joha_agent, "_queue_task_started"):
         joha_agent._queue_task_started = True
         asyncio.create_task(process_expired_queues())
 
-    await message_handler.process_group_message(event, bot.api)
+    await message_handler.process_group_message(event, client.api)
 
 
 def main() -> None:
     try:
-        bot.start(debug=config_manager.get("settings.debug", True))
+        client.start(debug=config_manager.get("settings.debug", True))
     finally:
         from joha.managers.style_learner import style_learner
         from joha.managers.user_profile import user_profile_manager
