@@ -1,5 +1,5 @@
 """
-通用 AI Bot 模块
+通用 AI 聊天引擎模块
 支持任意 OpenAI 兼容 API，支持工具调用（搜索、网页抓取、知识库查询）
 使用统一的 AI 客户端架构
 """
@@ -10,8 +10,8 @@ from joha.ai.providers import provider_manager
 from joha.config.infrastructure.logger import tprint
 
 
-class AIBot:
-    """通用 AI 对话机器人（支持工具调用）"""
+class ChatEngine:
+    """通用 AI 聊天引擎（支持工具调用）"""
 
     def __init__(
         self,
@@ -32,13 +32,13 @@ class AIBot:
         should_enable_tools = enable_tools and self.provider.name not in providers_without_tools
         
         if should_enable_tools != enable_tools:
-            tprint("warning", f"[AIBot] 提供商 {self.provider.name} 不支持工具调用，已自动禁用")
+            tprint("warning", f"[ChatEngine] 提供商 {self.provider.name} 不支持工具调用，已自动禁用")
 
         # 使用统一的 AI 客户端
         self.client = create_client_from_provider(self.provider, client_type="chat", enable_tools=should_enable_tools)
         self.model = self.provider.model
         self.provider_name = self.provider.name
-        tprint("info", f"[AIBot] 使用 provider: {self.provider_name} (模型: {self.model})")
+        tprint("info", f"[ChatEngine] 使用 provider: {self.provider_name} (模型: {self.model})")
 
         self.conversation_history: List[Dict[str, str]] = []
         if system_prompt:
@@ -158,7 +158,7 @@ class AIBot:
             return ai_message
         
         except Exception as e:
-            tprint("error", f"[AIBot] 调用失败: {e}")
+            tprint("error", f"[ChatEngine] 调用失败: {e}")
             return self._retry_with_other_provider(user_input, stream, temperature)
 
     def _retry_with_other_provider(self, user_input: str, stream: bool, temperature: float) -> str:
@@ -171,7 +171,7 @@ class AIBot:
                 if not p:
                     continue
                 
-                tprint("warning", f"[AIBot] 切换到 provider: {name}")
+                tprint("warning", f"[ChatEngine] 切换到 provider: {name}")
                 
                 # 某些提供商不支持工具调用，需要禁用
                 providers_without_tools = ["teatop"]
@@ -198,20 +198,20 @@ class AIBot:
                 return ai_message
             
             except Exception as retry_err:
-                tprint("error", f"[AIBot] provider '{name}' 也失败: {retry_err}")
+                tprint("error", f"[ChatEngine] provider '{name}' 也失败: {retry_err}")
         
         return ""
 
 
 
 # 全局实例（延迟初始化）
-_ai_bot_instance = None
+_chat_engine_instance = None
 
-def get_ai_bot() -> AIBot:
-    """获取 AI Bot 实例（延迟初始化）"""
-    global _ai_bot_instance
-    if _ai_bot_instance is None:
-        _ai_bot_instance = AIBot(
+def get_chat_engine() -> ChatEngine:
+    """获取聊天引擎实例（延迟初始化）"""
+    global _chat_engine_instance
+    if _chat_engine_instance is None:
+        _chat_engine_instance = ChatEngine(
             system_prompt=(
                 "你是一个真实的大学生，说话自然随意，像普通人聊天。"
                 "默认回复要短，能一句话说清就不要展开。"
@@ -225,11 +225,11 @@ def get_ai_bot() -> AIBot:
             ),
             enable_tools=True,
         )
-    return _ai_bot_instance
+    return _chat_engine_instance
 
 # 为了向后兼容，提供一个代理对象
-class _AIBotProxy:
+class _ChatEngineProxy:
     def __getattr__(self, name):
-        return getattr(get_ai_bot(), name)
+        return getattr(get_chat_engine(), name)
 
-ai_bot = _AIBotProxy()
+chat_engine = _ChatEngineProxy()

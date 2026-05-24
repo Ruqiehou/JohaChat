@@ -8,7 +8,7 @@ Joha 采用**分层 + 事件驱动**的架构设计，从上到下分为：
 ┌─────────────────────────────────────────────┐
 │           消息平台层 (NapCatQQ)              │  ← OneBot 协议 / WebSocket
 ├─────────────────────────────────────────────┤
-│           适配层 (joha.adapter)              │  ← BotClient、事件分发
+│           适配层 (joha.adapter)              │  ← MessageClient、事件分发
 ├─────────────────────────────────────────────┤
 │           编排层 (joha.core)                 │  ← 消息处理、命令路由、队列合并
 ├─────────────────────────────────────────────┤
@@ -34,13 +34,13 @@ Joha 采用**分层 + 事件驱动**的架构设计，从上到下分为：
 
 | 模块 | 文件 | 职责 |
 |------|------|------|
-| BotClient | `bot_client.py` | WebSocket 客户端封装，连接生命周期管理 |
+| MessageClient | `bot_client.py` | WebSocket 消息客户端封装，连接生命周期管理 |
 | NapCat 启动器 | `napcat_launcher.py` | 自动检测/启动 NapCatQQ 进程 |
 | 事件核心 | `core/` | API 封装、事件模型、事件总线、事件分发器 |
 | 配置读取 | `config/` | 连接配置 (`connection.yaml`)、配置管理器 |
 
 **关键类：**
-- `BotClient`: 入口类，负责 `ws_url` 连接、事件注册、消息收发
+- `MessageClient`: 入口类，负责 `ws_url` 连接、事件注册、消息收发
 - `GroupMessageEvent`: 群消息事件模型
 - `EventBus`: 内部事件总线，解耦消息接收与业务处理
 
@@ -146,7 +146,7 @@ Joha 的核心亮点，负责判断机器人在什么场景下应该回复。
 ## 3. 数据流向
 
 ```
-NapCatQQ ──WebSocket──→ BotClient ──EventBus──→ MessageHandler
+NapCatQQ ──WebSocket──→ MessageClient ──EventBus──→ MessageHandler
                                                           │
                     ┌───────────────────────────────────────┘
                     ↓
@@ -160,7 +160,7 @@ NapCatQQ ──WebSocket──→ BotClient ──EventBus──→ MessageHandl
                     ↓
             MessageBuilder (含 RAG)
                     ↓
-            AI Bot / Generator
+            ChatEngine / Generator
                     ↓
             BotAPI.send_group_message()
                     ↓

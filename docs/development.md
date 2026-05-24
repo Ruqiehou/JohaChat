@@ -50,7 +50,7 @@ JohaChat/
 │
 ├── joha/                           # 核心代码包
 │   ├── adapter/                    # NapCatQQ 适配层
-│   │   ├── bot_client.py           # BotClient 入口
+│   │   ├── bot_client.py           # MessageClient 入口
 │   │   ├── napcat_launcher.py      # NapCat 自动启动
 │   │   ├── core/                   # WebSocket、事件、API
 │   │   └── config/                 # 连接配置
@@ -63,7 +63,7 @@ JohaChat/
 │   ├── ai/                         # AI 驱动层
 │   │   ├── clients.py              # OpenAI 协议客户端
 │   │   ├── providers.py            # 多 Provider 管理
-│   │   ├── bot.py                  # 高层 Bot 封装
+│   │   ├── bot.py                  # ChatEngine 聊天引擎
 │   │   ├── generator.py            # 回复生成器
 │   │   └── classifier.py           # 文本分类器
 │   │
@@ -271,15 +271,14 @@ print(f"是否回复: {prob >= reply_cfg.thresholds.group}")
 ### 7.4 测试 LLM 调用
 
 ```python
-import asyncio
-from joha.ai.bot import AIBot
+from joha.ai.bot import ChatEngine
 
-async def test():
-    bot = AIBot()
-    response = await bot.chat("你好，请介绍一下自己")
+def test():
+    engine = ChatEngine()
+    response = engine.chat("你好，请介绍一下自己")
     print(response)
 
-asyncio.run(test())
+test()
 ```
 
 ---

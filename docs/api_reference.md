@@ -1,15 +1,15 @@
 # Joha 核心 API 参考
 
-## 1. BotClient
+## 1. MessageClient
 
-路径: `joha.adapter.BotClient`
+路径: `joha.adapter.MessageClient`
 
-WebSocket 客户端入口类。
+WebSocket 消息客户端入口类。
 
 ```python
-from joha.adapter import BotClient
+from joha.adapter import MessageClient
 
-bot = BotClient(
+client = MessageClient(
     ws_url="ws://localhost:3002",
     access_token="",
 )
@@ -175,17 +175,17 @@ reply_cfg.reload()
 
 ---
 
-## 8. AIBot
+## 8. ChatEngine
 
-路径: `joha.ai.bot.AIBot`
+路径: `joha.ai.bot.ChatEngine`
 
-高层 AI 对话封装。
+通用 AI 聊天引擎。
 
 ```python
-from joha.ai.bot import AIBot
+from joha.ai.bot import ChatEngine
 
-bot = AIBot()
-response = await bot.chat("你好")
+engine = ChatEngine()
+response = engine.chat("你好")
 ```
 
 ### 方法

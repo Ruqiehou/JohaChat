@@ -200,9 +200,9 @@ Get-Content joha/storage/johalog/ai.log -Wait
 
 ```python
 # 检查机器人是否在线
-from joha.adapter import BotClient
+from joha.adapter import MessageClient
 
-# 如果 BotClient 正常运行且 WebSocket 连接正常，机器人即在线
+# 如果 MessageClient 正常运行且 WebSocket 连接正常，机器人即在线
 ```
 
 ---

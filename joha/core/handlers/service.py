@@ -7,7 +7,7 @@ import asyncio
 from typing import Optional, Dict, Any
 from joha.ai.generator import generator
 from joha.core.builders.message_builder import message_builder
-from joha.ai.bot import get_ai_bot
+from joha.ai.bot import get_chat_engine
 from joha.core.utils import get_tool_registry, tool_registry
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
@@ -162,7 +162,7 @@ class MessageService:
             images = images or []
 
             if images:
-                current_model = getattr(get_ai_bot(), 'model', generator.current_model)
+                current_model = getattr(get_chat_engine(), 'model', generator.current_model)
                 if not supports_multimodal(current_model):
                     tprint("warning", f"[多模态] 模型 {current_model} 不支持图片，已跳过 {len(images)} 张图片")
                     johalog_logger.warning(f"模型 {current_model} 不支持多模态，已跳过图片")
@@ -188,13 +188,13 @@ class MessageService:
             
             response = None
             try:
-                ai_bot = get_ai_bot()
+                engine = get_chat_engine()
                 response = await asyncio.get_event_loop().run_in_executor(
                     None,
-                    lambda: ai_bot.chat(message, temperature=0.7)
+                    lambda: engine.chat(message, temperature=0.7)
                 )
             except Exception as bot_err:
-                tprint("warning", f"[AIBot] 失败，回退到生成器: {bot_err}")
+                tprint("warning", f"[ChatEngine] 失败，回退到生成器: {bot_err}")
                 response = await generator.chat(
                     messages=context_messages,
                     temperature=0.7,

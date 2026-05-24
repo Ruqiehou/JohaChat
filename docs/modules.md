@@ -19,8 +19,8 @@
 负责与 NapCatQQ 消息平台对接，提供 WebSocket 连接和事件抽象。
 
 ### bot_client.py
-- **类**: `BotClient`
-- **职责**: WebSocket 客户端入口，封装连接、心跳、重连逻辑
+- **类**: `MessageClient`
+- **职责**: WebSocket 消息客户端入口，封装连接、心跳、重连逻辑
 - **关键方法**:
   - `on_group_message()`: 装饰器，注册群消息事件回调
   - `start()`: 启动连接循环
@@ -129,15 +129,15 @@
   - 返回当前激活的客户端配置
 
 ### bot.py
-- **类**: `AIBot`
-- **职责**: 高层对话封装，隐藏 Provider 切换细节
+- **类**: `ChatEngine`
+- **职责**: 通用 AI 聊天引擎，支持工具调用和 Provider 自动切换
 - **关键方法**:
   - `chat()`: 发送消息并获取回复
-  - `switch_provider()`: 切换模型
+  - `clear_history()`: 清除对话历史
 
 ### generator.py
 - **类**: `ReplyGenerator`
-- **职责**: 基于 MessageBuilder 构建的上下文，调用 AIBot 生成回复
+- **职责**: 基于 MessageBuilder 构建的上下文，调用 ChatEngine 生成回复
 - **包含逻辑**: 工具调用循环、RAG 结果注入
 
 ### classifier.py

@@ -1,5 +1,5 @@
 """
-BotClient 类
+MessageClient 类
 精简版：仅保留装饰器模式的事件注册与生命周期管理
 """
 
@@ -30,8 +30,8 @@ NoticeHandler: TypeAlias = Callable[[NoticeEvent], Awaitable[None]]
 RequestHandler: TypeAlias = Callable[[RequestEvent], Awaitable[None]]
 
 
-class BotClient:
-    """机器人客户端 —— 装饰器模式入口"""
+class MessageClient:
+    """消息客户端 —— 装饰器模式入口"""
 
     def __init__(
         self,
@@ -211,23 +211,23 @@ class BotClient:
 
     @classmethod
     def run(cls) -> None:
-        """一键启动：从 config.yaml 读取配置并运行机器人"""
+        """一键启动：从 config.yaml 读取配置并运行消息客户端"""
         from adapter.config import config_manager
 
-        bot = cls(
+        client = cls(
             ws_url=config_manager.get("napcat.ws_url", "ws://localhost:3001"),
             access_token=config_manager.get("napcat.access_token", ""),
         )
-        bot.start(
+        client.start(
             debug=config_manager.get("settings.debug", False),
         )
 
     def __call__(self, debug: bool = False) -> None:
-        """直接调用实例启动机器人"""
+        """直接调用实例启动消息客户端"""
         self.start(debug=debug)
 
     def start(self, debug: bool = False) -> None:
-        """启动机器人（便捷方法，兼容已有事件循环）"""
+        """启动消息客户端（便捷方法，兼容已有事件循环）"""
         try:
             loop = asyncio.get_running_loop()
             if loop.is_running():

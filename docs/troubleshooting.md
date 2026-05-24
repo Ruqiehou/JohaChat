@@ -193,7 +193,7 @@ netstat -an | findstr 3002    # Windows
 - WebSocket 超时
 
 **解决方式：**
-- BotClient 内置自动重连机制
+- MessageClient 内置自动重连机制
 - 启动参数中可设置重连策略
 - 使用 systemd/supervisor 守护进程
 
