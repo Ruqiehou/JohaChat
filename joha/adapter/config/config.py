@@ -209,7 +209,7 @@ class Config:
     """
 
     # NapCat 连接配置
-    NAPCAT_WS_URL: Final[str] = os.getenv("NAPCAT_WS_URL", "ws://localhost:3001")
+    NAPCAT_WS_URL: Final[str] = os.getenv("NAPCAT_WS_URL", "ws://127.0.0.1:3001")
     NAPCAT_ACCESS_TOKEN: Final[str] = os.getenv("NAPCAT_ACCESS_TOKEN", "")
 
     # 日志配置

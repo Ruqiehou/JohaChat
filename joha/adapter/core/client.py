@@ -106,7 +106,7 @@ class NapCatClient(IClient):
         ws_url: Optional[str] = None,
         access_token: Optional[str] = None,
     ) -> None:
-        self.ws_url: str = ws_url or Config.NAPCAT_WS_URL
+        self.ws_url: str = self._normalize_ws_url(ws_url or Config.NAPCAT_WS_URL)
         self.access_token: str = access_token or Config.NAPCAT_ACCESS_TOKEN
         self.ws: Optional[websockets.WebSocketClientProtocol] = None
         self.message_handlers: Dict[str, List[EventHandler]] = {}
@@ -132,6 +132,22 @@ class NapCatClient(IClient):
 
         # ---- 连接事件监听器 ----
         self._connection_listeners: List[IConnectionEventListener] = []
+
+    @staticmethod
+    def _normalize_ws_url(url: str) -> str:
+        """标准化 WebSocket URL，解决 localhost 的 IPv4/IPv6 解析问题
+        
+        将 localhost 替换为 127.0.0.1，避免在某些系统上解析为 IPv6 ::1 导致连接失败。
+        
+        Args:
+            url: 原始 WebSocket URL
+            
+        Returns:
+            标准化后的 URL
+        """
+        if "localhost" in url:
+            url = url.replace("localhost", "127.0.0.1")
+        return url
 
     @property
     def connected(self) -> bool:
