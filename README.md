@@ -58,19 +58,35 @@ cd JohaChat
 # 2. 安装依赖
 pip install -r requirements.txt
 
-# 3. 配置 AI API Key
+# 3. 先配置并启动 NapCat
+#    在 NapCat 中开启 OneBot WebSocket 正向连接
+#    记下 ws_url、access_token（如有）、机器人 QQ 号
+
+# 4. 配置 AI API Key
 #    复制配置示例文件
 cp joha/config/config.example.json joha/config/config.json
 #    编辑 joha/config/config.json，填入你的 API Key
 
-# 4. 修改 adapter/connection.yaml 中的连接参数
+# 5. 修改 joha/adapter/connection.yaml 中的连接参数
 #    napcat:
 #      ws_url: ws://127.0.0.1:3002
+#      access_token: ""
 #      bot_uin: "你的机器人QQ号"
 
-# 5. 确保 NapCatQQ 已启动，然后运行机器人
+# 6. 如需临时覆盖连接配置，可直接编辑 run.py 中的 RUN_CONNECT_CONFIG
+#    例如：
+#    RUN_CONNECT_CONFIG = {
+#        "ws_url": "ws://127.0.0.1:3002",
+#        "access_token": "",
+#        "bot_uin": "1234567890",
+#        "debug": True,
+#    }
+
+# 7. 运行机器人
 python run.py
 ```
+
+> 如果 `run.py` 中的 `bot_uin` 与当前 NapCat 登录账号不一致，程序会直接停止连接，避免接错机器人账号。
 
 ### 📚 依赖清单
 
