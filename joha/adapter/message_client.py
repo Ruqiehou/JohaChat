@@ -31,7 +31,15 @@ RequestHandler: TypeAlias = Callable[[RequestEvent], Awaitable[None]]
 
 
 class MessageClient:
-    """消息客户端 —— 装饰器模式入口"""
+    """消息客户端 —— 专注于事件封装和装饰器模式
+    
+    职责：
+    - 提供装饰器 API 注册事件处理器
+    - 事件路由和分发
+    - 生命周期管理（启动/停止）
+    
+    底层连接由 NapCatClient 负责
+    """
 
     def __init__(
         self,
@@ -46,15 +54,18 @@ class MessageClient:
         self._notice_handlers: List[NoticeHandler] = []
         self._request_handlers: List[RequestHandler] = []
 
-        self._setup_handlers()
+        # 设置消息回调
+        self.client.set_message_callback(self._handle_message)
 
-    def _setup_handlers(self) -> None:
-        """向底层客户端注册事件路由"""
+    async def _handle_message(self, data: Dict[str, Any]) -> None:
+        """处理消息 —— 事件路由"""
+        post_type = data.get("post_type")
+        message_type = data.get("message_type")
 
-        @self.client.on_message("group")
-        async def _handle_group(data: Dict[str, Any]) -> None:
+        # 群消息
+        if message_type == "group" or post_type == "message" and data.get("message_type") == "group":
             try:
-                event: GroupMessageEvent = GroupMessageEvent.from_dict(data)
+                event = GroupMessageEvent.from_dict(data)
                 asyncio.create_task(self._print_group_message(event))
                 for handler in self._group_message_handlers:
                     try:
@@ -64,10 +75,10 @@ class MessageClient:
             except Exception as e:
                 logger.error(f"处理群消息时出错: {e}", exc_info=True)
 
-        @self.client.on_message("private")
-        async def _handle_private(data: Dict[str, Any]) -> None:
+        # 私聊消息
+        elif message_type == "private" or post_type == "message" and data.get("message_type") == "private":
             try:
-                event: PrivateMessageEvent = PrivateMessageEvent.from_dict(data)
+                event = PrivateMessageEvent.from_dict(data)
                 asyncio.create_task(self._print_private_message(event))
                 for handler in self._private_message_handlers:
                     try:
@@ -77,29 +88,29 @@ class MessageClient:
             except Exception as e:
                 logger.error(f"处理私聊消息时出错: {e}", exc_info=True)
 
-        @self.client.on_message("notice")
-        async def _handle_notice(data: Dict[str, Any]) -> None:
+        # 通知事件
+        elif post_type == "notice":
             try:
-                event: NoticeEvent = NoticeEvent.from_dict(data)
+                event = NoticeEvent.from_dict(data)
                 for handler in self._notice_handlers:
                     try:
                         asyncio.create_task(handler(event))
                     except Exception as e:
                         logger.error(f"处理通知事件时出错: {e}", exc_info=True)
             except Exception as e:
-                logger.error(f"处理通知事件时出错: {e}", exc_info=True)
+                logger.error(f"处理通知时出错: {e}", exc_info=True)
 
-        @self.client.on_message("request")
-        async def _handle_request(data: Dict[str, Any]) -> None:
+        # 请求事件
+        elif post_type == "request":
             try:
-                event: RequestEvent = RequestEvent.from_dict(data)
+                event = RequestEvent.from_dict(data)
                 for handler in self._request_handlers:
                     try:
                         asyncio.create_task(handler(event))
                     except Exception as e:
                         logger.error(f"处理请求事件时出错: {e}", exc_info=True)
             except Exception as e:
-                logger.error(f"处理请求事件时出错: {e}", exc_info=True)
+                logger.error(f"处理请求时出错: {e}", exc_info=True)
 
     async def _print_group_message(self, event: GroupMessageEvent) -> None:
         """异步打印群消息"""
@@ -171,7 +182,7 @@ class MessageClient:
     async def run_frontend(
         self, debug: bool = False
     ) -> None:
-        """运行机器人前端（事件循环入口）
+        """运行消息客户端（事件循环入口）
 
         Args:
             debug: 是否开启调试模式
@@ -184,7 +195,7 @@ class MessageClient:
                 logger.info("调试模式已开启")
 
             logger.info("=" * 50)
-            logger.info("机器人已启动")
+            logger.info("消息客户端已启动")
             logger.info("=" * 50)
             logger.info(
                 f"注册的群消息处理器数量: {len(self._group_message_handlers)}"
@@ -207,15 +218,15 @@ class MessageClient:
             logger.error(f"发生错误: {e}", exc_info=True)
         finally:
             await self.client.disconnect()
-            logger.info("机器人已关闭")
+            logger.info("消息客户端已关闭")
 
     @classmethod
     def run(cls) -> None:
-        """一键启动：从 config.yaml 读取配置并运行消息客户端"""
+        """一键启动：从 connection.yaml 读取配置并运行消息客户端"""
         from adapter.config import config_manager
 
         client = cls(
-            ws_url=config_manager.get("napcat.ws_url", "ws://localhost:3001"),
+            ws_url=config_manager.get("napcat.ws_url", "ws://127.0.0.1:3002"),
             access_token=config_manager.get("napcat.access_token", ""),
         )
         client.start(

@@ -3,12 +3,14 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import socket
 import time
 import uuid
 from pathlib import Path
 from typing import (
     Any, Awaitable, Callable, Dict, Final, List, Optional, Union, TypeAlias,
 )
+from urllib.parse import urlparse
 import websockets
 from websockets.exceptions import ConnectionClosed
 
@@ -22,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 # ---- 类型别名 ----
 EventHandler = Callable[[Dict[str, Any]], Awaitable[None]]
-Decorator = Callable[[EventHandler], EventHandler]
 
 
 # ==================== 消息段构建工具 ====================
@@ -92,7 +93,14 @@ class MessageSegment:
 
 
 class NapCatClient(IClient):
-    """NapCat 客户端 —— 实现 IClient Protocol"""
+    """NapCat 连接客户端 —— 专注于 WebSocket 连接管理
+    
+    职责：
+    - WebSocket 连接/断开/重连
+    - 消息收发
+    - API 调用
+    - 连接状态管理
+    """
 
     # ---- 重连配置 ----
     MAX_RECONNECT_ATTEMPTS: Final[int] = 5
@@ -109,9 +117,11 @@ class NapCatClient(IClient):
         self.ws_url: str = self._normalize_ws_url(ws_url or Config.NAPCAT_WS_URL)
         self.access_token: str = access_token or Config.NAPCAT_ACCESS_TOKEN
         self.ws: Optional[websockets.WebSocketClientProtocol] = None
-        self.message_handlers: Dict[str, List[EventHandler]] = {}
         self._connected: bool = False
         self.echo_map: Dict[str, asyncio.Future[Any]] = {}
+
+        # ---- 消息回调 ----
+        self._message_callback: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None
 
         # ---- 消息处理队列 ----
         self.msg_queue: Optional[asyncio.Queue[str]] = None
@@ -149,10 +159,63 @@ class NapCatClient(IClient):
             url = url.replace("localhost", "127.0.0.1")
         return url
 
+    @staticmethod
+    def _parse_ws_endpoint(ws_url: str) -> tuple[str, int]:
+        """解析 WebSocket URL 获取主机和端口
+        
+        Args:
+            ws_url: WebSocket URL
+            
+        Returns:
+            (host, port) 元组
+        """
+        parsed = urlparse(ws_url)
+        host = parsed.hostname or "127.0.0.1"
+        port = parsed.port or (443 if parsed.scheme == "wss" else 80)
+        return host, port
+
+    @staticmethod
+    def _tcp_probe(host: str, port: int, timeout: float = 2.0) -> bool:
+        """TCP 探测目标端口是否已开放
+        
+        Args:
+            host: 主机地址
+            port: 端口号
+            timeout: 超时时间（秒）
+            
+        Returns:
+            端口是否开放
+        """
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            sock.connect((host, port))
+            sock.close()
+            return True
+        except (socket.timeout, ConnectionRefusedError, OSError):
+            return False
+
+    def check_connection(self) -> bool:
+        """检测 NapCat 是否可连接
+        
+        Returns:
+            是否可连接
+        """
+        host, port = self._parse_ws_endpoint(self.ws_url)
+        return self._tcp_probe(host, port)
+
     @property
     def connected(self) -> bool:
         """是否已连接"""
         return self._connected
+    
+    def set_message_callback(self, callback: Callable[[Dict[str, Any]], Awaitable[None]]) -> None:
+        """设置消息回调函数
+        
+        Args:
+            callback: 异步回调函数，接收消息数据字典
+        """
+        self._message_callback = callback
     
     async def connect(self, max_retries: Optional[int] = None) -> bool:
         """
@@ -371,6 +434,7 @@ class NapCatClient(IClient):
 
     async def _handle_message(self, data: Dict[str, Any]) -> None:
         """处理消息"""
+        # 处理 API 响应（echo）
         if "echo" in data:
             echo_id = data["echo"]
             if echo_id in self.echo_map:
@@ -379,47 +443,12 @@ class NapCatClient(IClient):
                     future.set_result(data)
                 return
         
-        # 处理 NapCat 消息格式
-        post_type = data.get("post_type")
-        message_type = data.get("message_type")
-        
-        # 收集需要处理的事件类型
-        event_types = []
-        if post_type and post_type not in event_types:
-            event_types.append(post_type)
-        if message_type and message_type not in event_types:
-            event_types.append(message_type)
-        
-        # 遍历事件类型，避免重复处理
-        for event_type in event_types:
-            if event_type in self.message_handlers:
-                handlers = self.message_handlers[event_type]
-                if not handlers:
-                    continue
-                    
-                # 批量执行处理器，减少异常处理开销
-                for handler in handlers:
-                    try:
-                        # 使用 asyncio.create_task 并发执行，不阻塞
-                        asyncio.create_task(handler(data))
-                    except Exception as e:
-                        logger.error(f"注册消息处理器时出错: {e}", exc_info=True)
-
-    def on_message(self, message_type: str) -> Decorator:
-        """装饰器：注册消息事件处理器
-
-        Args:
-            message_type: 消息类型（'group' / 'private' / 'notice' / 'request'）
-
-        Returns:
-            装饰器函数
-        """
-        def decorator(func: EventHandler) -> EventHandler:
-            if message_type not in self.message_handlers:
-                self.message_handlers[message_type] = []
-            self.message_handlers[message_type].append(func)
-            return func
-        return decorator
+        # 调用消息回调函数
+        if self._message_callback:
+            try:
+                await self._message_callback(data)
+            except Exception as e:
+                logger.error(f"消息回调执行失败: {e}", exc_info=True)
 
     async def call_api(self, action: str, params: Optional[Dict[str, Any]] = None, 
                        max_retries: int = 3, retry_delay: float = 1.0) -> Dict[str, Any]:

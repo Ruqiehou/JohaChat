@@ -16,7 +16,7 @@ import yaml
 from dotenv import load_dotenv
 
 # 加载环境变量
-_env_path: Path = Path(__file__).parent.parent / ".env"
+_env_path: Path = Path(__file__).parent / ".env"
 load_dotenv(_env_path)
 
 # ---- 类型别名 ----
@@ -37,7 +37,7 @@ class ConfigManager:
         _raw: Path = Path(config_path)
         if not _raw.is_absolute():
             # 相对路径解析到项目根目录
-            _raw = Path(__file__).parent.parent.parent / _raw
+            _raw = Path(__file__).parent.parent / _raw
         self.config_path: Path = _raw
         self.config: YamlConfig = {}
         self._load_config()
@@ -165,16 +165,6 @@ class ConfigManager:
         self.set("napcat.webui_token", webui_token)
         self._save_config()
 
-    def set_napcat_dir(self, napcat_dir: str) -> None:
-        """设置 NapCat 目录"""
-        self.set("napcat.napcat_dir", napcat_dir)
-        self._save_config()
-
-    def set_auto_start(self, auto_start: bool) -> None:
-        """设置是否自动启动 NapCat"""
-        self.set("napcat.auto_start", auto_start)
-        self._save_config()
-
     # ==================== 日志配置 ====================
 
     def set_log_level(self, level: str) -> None:
@@ -232,7 +222,7 @@ class Config:
         if env_file:
             load_dotenv(env_file, override=True)
         else:
-            load_dotenv(Path(__file__).parent.parent / ".env", override=True)
+            load_dotenv(Path(__file__).parent / ".env", override=True)
         # 更新类属性
         cls.NAPCAT_WS_URL = os.getenv("NAPCAT_WS_URL", cls.NAPCAT_WS_URL)
         cls.NAPCAT_ACCESS_TOKEN = os.getenv("NAPCAT_ACCESS_TOKEN", cls.NAPCAT_ACCESS_TOKEN)

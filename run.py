@@ -4,7 +4,7 @@ Joha 统一启动入口
 """
 import asyncio
 
-from joha.adapter import MessageClient, GroupMessageEvent, ensure_napcat_running
+from joha.adapter import MessageClient, GroupMessageEvent
 from joha.adapter.config import config_manager
 from joha.core.handlers import message_handler
 from joha.core.utils import runtime_context
@@ -15,10 +15,8 @@ _bot_uin = _napcat_cfg.get("bot_uin", "8888888888")
 
 runtime_context.bot_uin = int(_bot_uin) if _bot_uin else 8888888888
 
-ensure_napcat_running()
-
 client = MessageClient(
-    ws_url=_napcat_cfg.get("ws_url", "ws://localhost:3002"),
+    ws_url=_napcat_cfg.get("ws_url", "ws://127.0.0.1:3002"),
     access_token=_napcat_cfg.get("access_token", ""),
 )
 

@@ -5,8 +5,8 @@ NapCat 适配层：连接、事件、API、配置管理
 
 from __future__ import annotations
 
-from .bot_client import MessageClient
-from .config import Config, setup_logging
+from .message_client import MessageClient
+from .config import Config, ConfigManager, config_manager, setup_logging, get_logger
 from .core import (
     BaseEvent,
     BotAPI,
@@ -26,7 +26,6 @@ from .core import (
     PrivateMessageEvent,
     RequestEvent,
 )
-from .napcat_launcher import ensure_napcat_running
 
 __version__: str = "3.5.0"
 
@@ -49,8 +48,10 @@ __all__: list[str] = [
     "FriendRequestEvent",
     "GroupRequestEvent",
     "Config",
+    "ConfigManager",
+    "config_manager",
     "setup_logging",
+    "get_logger",
     "MessageClient",
-    "ensure_napcat_running",
     "__version__",
 ]
