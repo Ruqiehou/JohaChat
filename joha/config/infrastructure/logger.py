@@ -74,8 +74,8 @@ def get_logger(name: str) -> logging.Logger:
     return setup_logger(name)
 
 
-# 预定义的日志记录器 - 全部放自己目录，不碰根目录logs
-JOHA_LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "storage", "johalog")
+# 预定义的日志记录器 - 全部放项目根 storage/johalog
+from joha.config.paths import JOHALOG_DIR as JOHA_LOG_DIR
 
 johalog_logger = setup_logger("johalog", log_dir=JOHA_LOG_DIR)
 ai_logger = setup_logger("ai", log_dir=JOHA_LOG_DIR)

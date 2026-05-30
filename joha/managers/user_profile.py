@@ -4,9 +4,10 @@ import os
 from dataclasses import dataclass, asdict
 from typing import Dict, Optional
 from joha.config.infrastructure.logger import johalog_logger
+from joha.config.paths import STORAGE_ROOT, USER_PROFILES_FILE
 
-PROFILES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
-PROFILES_FILE = os.path.join(PROFILES_DIR, "user_profiles.json")
+PROFILES_DIR = STORAGE_ROOT
+PROFILES_FILE = USER_PROFILES_FILE
 
 
 @dataclass

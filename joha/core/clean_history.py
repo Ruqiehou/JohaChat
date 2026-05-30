@@ -278,8 +278,8 @@ def main():
     """主函数"""
     # 配置路径
     project_root = Path(__file__).parent.parent.parent
-    source_dir = project_root / "joha" / "storage" / "history"
-    backup_dir = project_root / "joha" / "storage" / "history-backup"
+    source_dir = project_root / "storage" / "history"
+    backup_dir = project_root / "storage" / "history-backup"
     # 清洗后的文件保存到工作目录的 new-history 文件夹
     cleaned_dir = project_root / "new-history"
     

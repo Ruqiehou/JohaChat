@@ -5,8 +5,7 @@ import json
 import os
 from typing import Dict, Optional
 from joha.config.infrastructure.logger import johalog_logger
-
-GROUP_MODES_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "group_modes.json")
+from joha.config.paths import GROUP_MODES_FILE
 
 
 class GroupModeConfig:

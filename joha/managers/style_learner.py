@@ -8,8 +8,7 @@ import os
 from typing import Dict, Any, List, Optional
 from collections import Counter
 from joha.config.infrastructure.logger import johalog_logger
-
-STYLES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "styles")
+from joha.config.paths import STYLES_DIR
 
 
 class StyleLearner:

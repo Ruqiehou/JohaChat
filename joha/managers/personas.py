@@ -11,9 +11,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-PERSONAS_DIR = os.path.join(os.path.dirname(__file__), "..", "storage", "personas")
+from joha.config.paths import PERSONAS_DIR as _PERSONAS_DIR, STORAGE_ROOT
+
+PERSONAS_DIR = _PERSONAS_DIR
 REGISTRY_FILE = os.path.join(PERSONAS_DIR, "personas.json")
-RENSHE_FILE_LEGACY = os.path.join(os.path.dirname(__file__), "..", "storage", "renshe.txt")
+RENSHE_FILE_LEGACY = os.path.join(STORAGE_ROOT, "renshe.txt")
 CACHE_TTL = 600
 _ACTIVE_PERSONA: str = "joha"
 

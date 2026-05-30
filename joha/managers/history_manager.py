@@ -10,14 +10,14 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from collections import Counter
 from joha.config.infrastructure.cache import LRUCache
-from joha.core.utils import post_processor
+from joha.core.response_postprocessor import post_processor
+from joha.config.paths import HISTORY_DIR
 
 logger = logging.getLogger(__name__)
 
 MAX_HISTORY_LENGTH = 2000
 CACHE_TTL = 300
-# 使用标准 history 目录
-STORAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "history")
+STORAGE_DIR = HISTORY_DIR
 
 
 class HistoryManager:

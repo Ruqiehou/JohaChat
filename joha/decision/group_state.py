@@ -12,7 +12,7 @@ from collections import deque, Counter
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 
-GROUP_STATE_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "group_states.json")
+from joha.config.paths import GROUP_STATES_FILE as GROUP_STATE_FILE
 
 
 @dataclass

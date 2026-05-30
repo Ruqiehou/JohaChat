@@ -9,8 +9,7 @@ import json
 import os
 from typing import Dict
 from joha.config.infrastructure.logger import tprint
-
-COOLDOWN_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "cooldown.json")
+from joha.config.paths import COOLDOWN_FILE
 
 
 class CooldownManager:
