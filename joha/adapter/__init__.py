@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from .message_client import MessageClient
 from .config import Config, ConfigManager, config_manager, setup_logging, get_logger
-from .core import (
+from .kernel import (
     BaseEvent,
     BotAPI,
     EventBus,

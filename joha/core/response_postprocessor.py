@@ -5,7 +5,7 @@
 import re
 import logging
 from typing import Optional
-from joha.core.utils.persona_monitor import persona_monitor
+from joha.core.persona_monitor import persona_monitor
 
 logger = logging.getLogger(__name__)
 

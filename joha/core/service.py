@@ -6,9 +6,9 @@ import time
 import asyncio
 from typing import Optional, Dict, Any
 from joha.ai.generator import generator
-from joha.core.builders.message_builder import message_builder
+from joha.core.message_builder import message_builder
 from joha.ai.bot import get_chat_engine
-from joha.core.utils import get_tool_registry, tool_registry
+from joha.core.tool_registry import get_tool_registry, tool_registry
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
 from joha.config.infrastructure.logger import johalog_logger, ai_logger, tprint
@@ -74,22 +74,6 @@ class MessageService:
         is_pure_sticker_or_image: bool = False,
         images: list = None,
     ) -> Optional[str]:
-        """
-        处理消息 - 学习和回复分离
-        
-        Args:
-            userid: 用户 ID
-            message: 消息内容
-            group_id: 群 ID（可选）
-            force_reply: 是否强制回复
-            is_at_bot: 是否@机器人
-            reply_to_bot: 是否回复机器人消息
-            is_pure_sticker_or_image: 是否为纯表情/贴纸/图片
-            images: 图片 base64 data URL 列表（多模态用）
-        
-        Returns:
-            回复内容或 None
-        """
         userid_str = str(userid)
         message = message.strip()
         images = images or []
@@ -157,7 +141,6 @@ class MessageService:
         images: list = None,
         group_id: Optional[str] = None,
     ) -> Optional[str]:
-        """回复流程：主动模式生成回复（支持图片多模态 + RAG 知识库检索）"""
         try:
             images = images or []
 
@@ -227,7 +210,6 @@ class MessageService:
             return None
     
     def get_global_mode(self) -> str:
-        """获取全局模式"""
         config.load()
         mode = config.get('bot.mode', self.mode)
         if mode not in ["active", "passive"]:
@@ -236,7 +218,6 @@ class MessageService:
         return mode
 
     def set_global_mode(self, mode: str) -> None:
-        """设置全局模式"""
         if mode not in ["active", "passive"]:
             raise ValueError(f"无效的模式: {mode}")
         config.load()
@@ -245,11 +226,9 @@ class MessageService:
         self.mode = mode
 
     def get_group_mode(self, group_id: str) -> str:
-        """获取群组模式"""
         return group_mode_config.get_mode(group_id, self.get_global_mode())
     
     def set_group_mode(self, group_id: str, mode: str) -> None:
-        """设置群组模式"""
         if mode not in ["active", "passive"]:
             raise ValueError(f"无效的模式: {mode}")
         
@@ -257,7 +236,6 @@ class MessageService:
         self.group_modes = group_mode_config.get_all_modes()
     
     def get_stats(self) -> Dict[str, Any]:
-        """获取服务统计信息"""
         uptime = int(time.time() - self.started_at)
         from joha.decision.group_state import group_state_manager
         gs = group_state_manager.get_stats()
@@ -278,7 +256,6 @@ class MessageService:
         }
     
     def get_stats_str(self) -> str:
-        """获取统计信息字符串"""
         stats = self.get_stats()
         return (
             f"=== Joha 服务统计 ===\n"
