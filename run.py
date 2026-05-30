@@ -3,8 +3,7 @@ Joha 统一启动入口
 """
 
 from joha.adapter import MessageClient, GroupMessageEvent, config_manager
-from joha.core.handlers import message_handler
-from joha.core.utils import runtime_context
+from joha.core import message_handler, runtime_context
 
 NAPCAT_WS_URL = "ws://127.0.0.1:3002"
 NAPCAT_ACCESS_TOKEN = ""
