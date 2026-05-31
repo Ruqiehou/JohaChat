@@ -14,7 +14,7 @@
 7. 发送回复
 """
 import re
-from joha.adapter import GroupMessageEvent
+from adapter import GroupMessageEvent
 from joha.core.service import message_service
 from joha.core.commands import command_handler, normalize_fallback_command
 from joha.core.runtime_context import runtime_context

@@ -68,7 +68,7 @@ pip install -r requirements.txt
 cp joha/config/config.example.json joha/config/config.json
 #    编辑 joha/config/config.json，填入你的 API Key
 
-# 5. 修改 joha/adapter/connection.yaml 中的连接参数
+# 5. 修改 adapter/connection.yaml 中的连接参数
 #    napcat:
 #      ws_url: ws://127.0.0.1:3002
 #      access_token: ""
@@ -231,28 +231,32 @@ napcat:
 ```
 run.py                     ← 统一启动入口
   │
+  ├─ adapter/              ← NapCat 适配层（独立包）
+  │    ├─ kernel/              — 连接层：WebSocket 客户端、API、事件模型
+  │    ├─ config.py            — 配置管理、日志系统
+  │    ├─ connection.yaml      — 连接配置文件
+  │    └─ message_client.py    — 封装层：MessageClient（事件注册与路由）
+  │
+  ├─ storage/              ← 运行时数据（自动创建）
+  │    ├─ history/             — 聊天历史
+  │    ├─ styles/              — 风格学习数据
+  │    ├─ personas/            — 人设数据
+  │    └─ johalog/             — 运行日志
+  │
   └─ joha/                 ← 核心包
-       ├─ adapter/         ← NapCat 适配层
-       │    ├─ core/            — 连接层：WebSocket 客户端、API、事件模型
-       │    ├─ config.py        — 配置管理、日志系统
-       │    ├─ connection.yaml  — 连接配置文件
-       │    └─ message_client.py — 封装层：MessageClient（事件注册与路由）
-       │
-       ├─ core/            ← 编排入口层
-       │    ├─ handlers/        — 消息接收与预处理
-       │    │    ├─ message_handler.py   — 消息接收、@/回复检测、队列合并
-       │    │    ├─ service.py           — 核心业务逻辑（学习 + 回复分离）
-       │    │    └─ commands.py          — 命令处理
-       │    ├─ builders/        — LLM 上下文构建
-       │    │    ├─ message_builder.py   — 上下文组装
-       │    │    └─ message_queue.py     — 消息队列合并
-       │    └─ utils/           — 工具模块
-       │         ├─ runtime_context.py   — 运行时上下文
-       │         ├─ persona_monitor.py   — 人设监控
-       │         ├─ tool_registry.py     — 工具注册表（自动发现）
-       │         ├─ response_postprocessor.py — 回复后处理
-       │         ├─ image_utils.py       — 图片格式转换
-       │         └─ clean_history.py     — 历史记录清洗
+       ├─ core/            ← 编排入口层（扁平结构）
+       │    ├─ message_handler.py   — 消息接收、@/回复检测、队列合并
+       │    ├─ service.py           — 核心业务逻辑（学习 + 回复分离）
+       │    ├─ commands.py          — 命令处理
+       │    ├─ message_builder.py   — 上下文组装
+       │    ├─ message_queue.py     — 消息队列合并
+       │    ├─ runtime_context.py   — 运行时上下文
+       │    ├─ persona_monitor.py   — 人设监控
+       │    ├─ tool_registry.py     — 工具注册表（自动发现）
+       │    ├─ response_postprocessor.py — 回复后处理
+       │    ├─ image_utils.py       — 图片格式转换
+       │    ├─ clean_history.py     — 历史记录清洗
+       │    └─ hot_reload.py        — 开发热重载
        │
        ├─ ai/              ← AI 驱动层
        │    ├─ clients.py        — AI 客户端抽象（多 Provider 适配）
@@ -261,8 +265,8 @@ run.py                     ← 统一启动入口
        │    ├─ generator.py      — 回复生成器
        │    └─ classifier.py     — 意图分类器
        │
-       ├─ decision/        ← 决策大脑层（扁平结构，无子目录）
-       │    ├─ decision_engine.py  — 决策引擎（总分架构的"总"）
+       ├─ decision/        ← 决策大脑层
+       │    ├─ decision_engine.py  — 决策引擎
        │    ├─ reply_decision.py   — 回复决策（Logit + Sigmoid）
        │    ├─ reply_config.py     — 决策配置加载器
        │    ├─ intent_classifier.py— AI 意图识别
@@ -283,13 +287,9 @@ run.py                     ← 统一启动入口
        │
        └─ config/         ← 配置与基础设施
             ├─ managers/          — 配置管理器
-            │    ├─ config_manager.py    — 主配置（JSON + 环境变量覆盖）
-            │    └─ group_mode_config.py — 群组模式配置
             ├─ infrastructure/    — 基础设施
-            │    ├─ logger.py           — 日志系统
-            │    └─ cache.py            — LRU 缓存
-            ├─ config.example.json      — 配置示例
-            └─ reply_decision.json      — 回复决策参数（独立配置文件）
+            ├─ paths.py           — 存储路径定义
+            └─ reply_decision.json — 回复决策参数
 ```
 
 ### 🔄 消息处理流程
@@ -395,16 +395,18 @@ JohaChat/
 ├── run.py                   # 统一启动入口
 ├── requirements.txt         # Python 依赖
 ├── README.md                # 本文件
+├── CHANGELOG.md             # 更新日志
+│
+├── adapter/                 # NapCat 适配层（独立包）
+├── storage/                 # 运行时数据（自动创建）
 │
 ├── joha/                    # 核心代码包
-│   ├── adapter/            # NapCat 适配层
 │   ├── core/               # 编排入口层
 │   ├── ai/                 # AI 驱动层
 │   ├── decision/           # 决策大脑层
 │   ├── tools/              # 工具层
 │   ├── managers/           # 数据管理层
-│   ├── config/             # 配置与基础设施
-│   └── storage/            # 数据存储
+│   └── config/             # 配置与基础设施
 │
 └── docs/                    # 文档目录
 ```

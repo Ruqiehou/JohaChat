@@ -8,7 +8,9 @@
 
 本次版本对项目进行了大规模的架构简化和命名规范化，提升了代码可读性和维护性。
 
-#### 适配层（adapter）精简
+#### 适配层（adapter）提级
+- **`adapter/` 从 `joha/` 提升到项目根目录**，作为独立包，与 `joha/` 核心包平级
+- 内部导入使用 `adapter.config`、`adapter.core` 等，外部导入从 `joha.adapter` 改为 `adapter`
 - **移除 `adapter/config/` 子目录**，配置文件直接放在 `adapter/` 下，结构更扁平
 - **移除 `napcat_launcher.py`**（自动拉起 NapCat），改为纯连接检测，用户需手动启动 NapCat
 - **移除 `config.example.yaml`**，只保留 `connection.yaml` 作为唯一配置文件
