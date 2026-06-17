@@ -20,7 +20,7 @@ from joha.core.commands import command_handler, normalize_fallback_command
 from joha.core.runtime_context import runtime_context
 from joha.core.message_queue import message_queue_manager
 from joha.core.image_utils import extract_images_from_sdk_event
-from joha.config.infrastructure.logger import johalog_logger, tprint
+from joha.config.logger import johalog_logger, tprint
 from joha.decision.group_state import group_state_manager
 
 

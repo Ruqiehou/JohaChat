@@ -7,7 +7,7 @@ import json
 import threading
 from typing import Dict, Any, Optional, List
 from pathlib import Path
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 
 class ConfigManager:

@@ -4,7 +4,7 @@
 import json
 import os
 from typing import Dict, Optional
-from joha.config.infrastructure.logger import johalog_logger
+from joha.config.logger import johalog_logger
 from joha.config.paths import GROUP_MODES_FILE
 
 

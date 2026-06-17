@@ -8,7 +8,7 @@ import os
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from collections import Counter
-from joha.config.infrastructure.cache import LRUCache
+from joha.config.cache import LRUCache
 from joha.config.paths import HISTORY_DIR
 
 logger = logging.getLogger(__name__)

@@ -11,9 +11,9 @@ from joha.ai.bot import get_chat_engine
 from joha.core.tool_registry import get_tool_registry, tool_registry
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
-from joha.config.infrastructure.logger import johalog_logger, ai_logger, tprint
-from joha.config.managers.config_manager import config
-from joha.config.managers.group_mode_config import group_mode_config
+from joha.config.logger import johalog_logger, ai_logger, tprint
+from joha.config.config_manager import config
+from joha.config.group_mode_config import group_mode_config
 from joha.decision import get_decision_engine
 
 

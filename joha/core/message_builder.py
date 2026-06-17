@@ -6,7 +6,7 @@ from typing import List, Dict, Optional
 from joha.managers.personas import get_persona, get_persona_by_group
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 
 class MessageBuilder:

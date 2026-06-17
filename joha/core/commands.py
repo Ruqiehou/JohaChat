@@ -6,7 +6,7 @@ from typing import Optional
 
 from joha.core.service import message_service
 from joha.managers.style_learner import style_learner
-from joha.config.managers.config_manager import config
+from joha.config.config_manager import config
 # generator 仅在 /切换模型 命令中延迟导入，避免 LLM 未配置时影响其他管理命令
 from joha.core.persona_monitor import persona_monitor
 from joha.managers.personas import (
