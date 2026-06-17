@@ -14,7 +14,7 @@ from joha.decision.cooldown import cooldown_manager, CooldownManager
 from joha.decision.group_state import group_state_manager
 from joha.decision.command_analyzer import command_analyzer, CommandAnalyzer
 from joha.decision.intent_classifier import get_intent_classifier, IntentClassifier
-from joha.config.infrastructure.logger import johalog_logger, tprint
+from joha.config.logger import johalog_logger, tprint
 
 
 @dataclass

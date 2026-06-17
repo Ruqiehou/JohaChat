@@ -6,8 +6,8 @@ import json
 from typing import Dict, Optional
 from joha.ai.clients import create_client_from_provider
 from joha.ai.providers import provider_manager, Provider
-from joha.config.managers.config_manager import config as config_manager
-from joha.config.infrastructure.logger import tprint
+from joha.config.config_manager import config as config_manager
+from joha.config.logger import tprint
 
 
 class CommandAnalyzer:

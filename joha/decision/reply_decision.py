@@ -14,7 +14,7 @@ from joha.managers.user_profile import UserProfile, user_profile_manager
 from joha.decision.cooldown import CooldownManager, cooldown_manager
 from joha.decision.group_state import group_state_manager
 from joha.decision.reply_config import reply_cfg
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 INTENT_PATTERNS = {
     "question": [
@@ -227,7 +227,7 @@ def compute_reply_prob(ctx: MessageContext, cooldown: CooldownManager = cooldown
     if profile.is_blocked:
         return 0.0
 
-    from joha.config.managers.config_manager import config as config_manager
+    from joha.config.config_manager import config as config_manager
     # 斜杠命令跳过 AI 意图识别
     use_ai_intent = False if ctx.text.startswith('/') else config_manager.get("intent_recognition.enabled", False)
 

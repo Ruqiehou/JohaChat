@@ -160,10 +160,10 @@ class GroupStateManager:
                     self._states[group_id] = GroupState.from_dict(state_data)
                 
                 if self._states:
-                    from joha.config.infrastructure.logger import tprint
+                    from joha.config.logger import tprint
                     tprint("info", f"[GroupState] 已恢复 {len(self._states)} 个群组状态")
         except Exception as e:
-            from joha.config.infrastructure.logger import tprint
+            from joha.config.logger import tprint
             tprint("error", f"[GroupState] 加载群组状态失败: {e}")
     
     def _save_to_file(self):
@@ -179,7 +179,7 @@ class GroupStateManager:
             with open(GROUP_STATE_FILE, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            from joha.config.infrastructure.logger import tprint
+            from joha.config.logger import tprint
             tprint("error", f"[GroupState] 保存群组状态失败: {e}")
 
     def get(self, group_id: str) -> GroupState:

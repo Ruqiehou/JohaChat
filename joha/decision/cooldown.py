@@ -8,7 +8,7 @@ import math
 import json
 import os
 from typing import Dict
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 from joha.config.paths import COOLDOWN_FILE
 
 

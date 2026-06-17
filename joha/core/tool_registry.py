@@ -9,7 +9,7 @@ import inspect
 import traceback
 from typing import Dict, List, Optional, Callable, Any
 
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 
 # 默认工具扫描路径

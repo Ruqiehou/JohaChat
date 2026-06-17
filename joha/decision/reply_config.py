@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any
 from dataclasses import dataclass
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 
 CONFIG_FILE = Path(__file__).resolve().parent.parent / "config" / "reply_decision.json"

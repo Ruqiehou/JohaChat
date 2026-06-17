@@ -7,7 +7,7 @@ AI 意图识别器
 from typing import Dict, Optional
 from joha.ai.clients import create_client_from_provider
 from joha.ai.providers import provider_manager, Provider
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 
 class IntentClassifier:
@@ -18,7 +18,7 @@ class IntentClassifier:
         self.use_custom_config = False
         
         # 从配置中读取意图识别设置
-        from joha.config.managers.config_manager import config as config_manager
+        from joha.config.config_manager import config as config_manager
         intent_config = config_manager.get("intent_recognition", {})
         
         # 检查是否使用自定义配置（优先级最高）
