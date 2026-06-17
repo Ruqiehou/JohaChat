@@ -67,8 +67,6 @@ class MessageBuilder:
                 if isinstance(h, dict):
                     if h.get("message"):
                         context_messages.append({"role": "user", "content": h["message"]})
-                    if h.get("response"):
-                        context_messages.append({"role": "assistant", "content": h["response"]})
 
         if images:
             content_parts = []

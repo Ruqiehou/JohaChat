@@ -117,7 +117,7 @@ class MessageService:
         
         # 4. 工具直接回复（引擎已执行）
         if result.reply_text:
-            history_manager.add_message(userid_str, message or "[图片]", result.reply_text, group_id=group_id)
+            history_manager.add_message(userid_str, message or "[图片]", group_id=group_id)
             self.generated_replies += 1
             return result.reply_text
         
@@ -126,7 +126,7 @@ class MessageService:
     
     def _learn_message(self, userid_str: str, message: str, group_id: Optional[str] = None) -> None:
         try:
-            history_manager.add_message(userid_str, message, "", group_id=group_id)
+            history_manager.add_message(userid_str, message, group_id=group_id)
             style_learner.learn_from_message(userid_str, message)
             self.learned_messages += 1
             
@@ -198,7 +198,7 @@ class MessageService:
             )
             
             # 记录回复到历史
-            history_manager.add_message(userid_str, message or "[图片]", response, group_id=group_id)
+            history_manager.add_message(userid_str, message or "[图片]", group_id=group_id)
             
             self.generated_replies += 1
             return response

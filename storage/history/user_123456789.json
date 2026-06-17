@@ -1,26 +1,26 @@
 {
   "100001": [
     {
-      "message": "你好呀",
-      "response": "你好~",
-      "timestamp": "2026-05-30T10:00:00"
+      "timestamp": "2026-05-30T10:00:00",
+      "group_id": "100001",
+      "message": "你好呀"
     },
     {
-      "message": "今天天气怎么样",
-      "response": "还不错，挺暖和的",
-      "timestamp": "2026-05-30T10:01:30"
+      "timestamp": "2026-05-30T10:01:30",
+      "group_id": "100001",
+      "message": "今天天气怎么样"
     },
     {
-      "message": "下午一起打球吗",
-      "response": "行啊，几点",
-      "timestamp": "2026-05-30T10:05:00"
+      "timestamp": "2026-05-30T10:05:00",
+      "group_id": "100001",
+      "message": "下午一起打球吗"
     }
   ],
   "100002": [
     {
-      "message": "有人吗",
-      "response": "在呢",
-      "timestamp": "2026-05-30T11:00:00"
+      "timestamp": "2026-05-30T11:00:00",
+      "group_id": "100002",
+      "message": "有人吗"
     }
   ]
 }

@@ -1,7 +1,6 @@
 """
-历史记录管理器 - JSON 存储版（重构版）
+历史记录管理器 - JSON 存储版
 支持按用户QQ区分，内部按群隔离的消息存储
-集成实时过滤机制，确保历史记录质量
 """
 import json
 import logging
@@ -10,7 +9,6 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from collections import Counter
 from joha.config.infrastructure.cache import LRUCache
-from joha.core.response_postprocessor import post_processor
 from joha.config.paths import HISTORY_DIR
 
 logger = logging.getLogger(__name__)
@@ -106,70 +104,33 @@ class HistoryManager:
         self._cache.clear()
         return ok
 
-    def add_message(self, userid: str, message: str, response: Optional[str] = None,
+    def add_message(self, userid: str, message: str,
                     group_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """添加消息到历史记录，自动按群组隔离
         
         支持合并消息：如果message包含多条消息（用\n分隔），会分别存储
-        自动应用后处理过滤，确保回复质量
         """
         userid_str = str(userid)
         all_history = self._read_all(userid_str)
         
-        # 确定群组ID，默认为"global"
         gid = str(group_id) if group_id else "global"
         
-        # 初始化该群组的记录列表（如果不存在）
         if gid not in all_history:
             all_history[gid] = []
         
-        # 对response应用后处理过滤
-        filtered_response = None
-        if response:
-            filtered_response = post_processor.process(response)
-            # 记录过滤情况
-            if filtered_response != response:
-                logger.debug(f"历史记录过滤 | 原: {response[:50]} | 新: {filtered_response[:50]}")
-        
-        # 检查是否为合并消息（包含换行符的多条消息）
         messages = message.split('\n') if '\n' in message else [message]
         
-        # 为每条消息创建记录
         for msg in messages:
-            if msg.strip():  # 跳过空消息
+            if msg.strip():
                 all_history[gid].append({
                     "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "group_id": gid,
                     "message": msg.strip(),
-                    "response": filtered_response or "",
                 })
         
         self._write_all(userid_str, all_history)
         self._cache.clear()
         return self.load_history(userid_str, group_id=group_id)
-
-    def find_similar_response(self, userid: str, current_message: str,
-                              min_similarity: float = 0.3, group_id: Optional[str] = None) -> Optional[str]:
-        history = self.load_history(userid, group_id=group_id)
-        if not history:
-            return None
-
-        current_words = set(current_message.lower().split())
-        best_match = None
-        max_similarity = min_similarity
-
-        for record in history:
-            if record.get("response") and record.get("message"):
-                hist_words = set(record["message"].lower().split())
-                union_words = current_words | hist_words
-                if not union_words:
-                    continue
-                similarity = len(current_words & hist_words) / len(union_words)
-                if similarity > max_similarity:
-                    max_similarity = similarity
-                    best_match = record["response"]
-
-        return best_match
 
     def clear_history(self, userid: str, group_id: Optional[str] = None) -> bool:
         """清空用户历史记录，可选择清空特定群组"""
@@ -287,10 +248,6 @@ def save_history(userid: str, history: Dict[str, List[Dict[str, Any]]]) -> bool:
     return history_manager.save_history(userid, history)
 
 
-def add_message_to_history(userid: str, message: str, response: Optional[str] = None,
+def add_message_to_history(userid: str, message: str,
                           group_id: Optional[str] = None) -> List[Dict[str, Any]]:
-    return history_manager.add_message(userid, message, response, group_id=group_id)
-
-
-def find_similar_response(userid: str, current_message: str, min_similarity: float = 0.3) -> Optional[str]:
-    return history_manager.find_similar_response(userid, current_message, min_similarity)
+    return history_manager.add_message(userid, message, group_id=group_id)
