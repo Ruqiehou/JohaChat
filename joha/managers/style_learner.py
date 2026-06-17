@@ -7,7 +7,7 @@ import json
 import os
 from typing import Dict, Any, List, Optional
 from collections import Counter
-from joha.config.infrastructure.logger import johalog_logger
+from joha.config.logger import johalog_logger
 from joha.config.paths import STYLES_DIR
 
 

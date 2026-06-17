@@ -6,7 +6,7 @@ import json
 import os
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-from joha.config.infrastructure.cache import LRUCache
+from joha.config.cache import LRUCache
 import logging
 
 logger = logging.getLogger(__name__)

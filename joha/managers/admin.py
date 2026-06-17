@@ -4,8 +4,8 @@
 import json
 import threading
 from typing import List
-from joha.config.managers.config_manager import config
-from joha.config.infrastructure.logger import tprint
+from joha.config.config_manager import config
+from joha.config.logger import tprint
 
 
 class AdminManager:
