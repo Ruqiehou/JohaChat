@@ -8,7 +8,7 @@ from openai import OpenAI
 import json
 import time
 import random
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 
 class BaseAIClient(ABC):

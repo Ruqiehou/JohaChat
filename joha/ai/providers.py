@@ -4,7 +4,7 @@ Provider 抽象层
 """
 import threading
 from typing import Optional, List, Dict
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 
 class Provider:

@@ -4,7 +4,7 @@
 """
 from joha.ai.clients import create_client_from_provider
 from joha.ai.providers import provider_manager
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 
 class QuestionClassifier:
