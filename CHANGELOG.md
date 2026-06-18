@@ -32,6 +32,16 @@
 | `ai_bot` / `get_ai_bot()` | `chat_engine` / `get_chat_engine()` | 全局实例和获取函数 |
 | `BotClient` | `MessageClient` | 消息客户端，突出消息处理职责 |
 
+#### 配置层（config）扁平化
+- 移除 `config/managers/` 和 `config/infrastructure/` 子目录
+- 所有模块直接放在 `config/` 下：`config_manager.py`、`group_mode_config.py`、`logger.py`、`cache.py`
+- 导入路径从 `joha.config.managers.xxx` 简化为 `joha.config.xxx`
+
+#### 历史记录简化
+- 移除 `response` 字段，历史记录只保留用户消息
+- 删除 `find_similar_response()` 方法
+- `add_message()` 不再需要传入回复内容
+
 #### 数据目录外提
 - `joha/storage/` 提升到项目根目录 `storage/`
 - 新增 `joha/config/paths.py` 集中定义所有存储路径
