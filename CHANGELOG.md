@@ -83,5 +83,7 @@
 - `joha/core/handlers/` — 处理器子目录
 - `joha/core/builders/` — 构建器子目录
 - `joha/core/utils/` — 工具子目录
+- `joha/config/managers/` — 配置管理器子目录
+- `joha/config/infrastructure/` — 基础设施子目录
 - `joha/storage/` — 旧存储目录（已迁移至根目录）
 - `hot_reload.py` — 根目录旧热重载文件

@@ -285,9 +285,11 @@ run.py                     ← 统一启动入口
        │    ├─ user_profile.py   — 用户画像
        │    └─ admin.py          — 管理员管理
        │
-       └─ config/         ← 配置与基础设施
-            ├─ managers/          — 配置管理器
-            ├─ infrastructure/    — 基础设施
+       └─ config/         ← 配置与基础设施（扁平结构）
+            ├─ config_manager.py  — 主配置管理器
+            ├─ group_mode_config.py — 群组模式配置
+            ├─ logger.py          — 日志系统
+            ├─ cache.py           — LRU 缓存
             ├─ paths.py           — 存储路径定义
             └─ reply_decision.json — 回复决策参数
 ```
