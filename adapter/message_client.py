@@ -10,8 +10,9 @@ import logging
 from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeAlias
 
 from adapter.config import setup_logging
-from adapter.core import BotAPI, NapCatClient
-from adapter.core.events import (
+from adapter.transport import NapCatClient
+from adapter.protocol import BotAPI
+from adapter.protocol.events import (
     GroupMessageEvent,
     NoticeEvent,
     PrivateMessageEvent,
