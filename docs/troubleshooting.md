@@ -59,10 +59,10 @@ curl -H "Authorization: Bearer YOUR_API_KEY" \
 
 ```bash
 # 查看日志
-tail -f joha/storage/johalog/ai.log
+tail -f storage/johalog/ai.log
 
 # 查找连接状态
-grep -i "connect\|websocket\|error" joha/storage/johalog/ai.log
+grep -i "connect\|websocket\|error" storage/johalog/ai.log
 ```
 
 确认：
@@ -149,7 +149,7 @@ Joha 的命令必须以 `/` 开头，如 `/帮助`、`/模式`。
 **步骤 3：查看日志**
 
 ```bash
-tail -f joha/storage/johalog/ai.log | grep -i "command\|命令"
+tail -f storage/johalog/ai.log | grep -i "command\|命令"
 ```
 
 ---
@@ -242,15 +242,15 @@ asyncio.run(test_api())
 
 **排查：**
 
-1. 知识库是否过大（检查 `joha/storage/txt/` 下的文件数量和大小）
-2. 历史记录是否过多（清理 `joha/storage/history/`）
+1. 知识库是否过大（检查 `storage/txt/` 下的文件数量和大小）
+2. 历史记录是否过多（清理 `storage/history/`）
 3. 系统资源是否充足（CPU、内存）
 
 **解决：**
 
 ```bash
 # 清理旧历史记录
-rm -rf joha/storage/history/old_*.json   # 谨慎操作
+rm -rf storage/history/old_*.json   # 谨慎操作
 
 # 优化知识库
 # 删除不必要的知识库分片
@@ -292,13 +292,13 @@ cp joha/config/config.example.json joha/config/config.json
 
 ```bash
 # 1. 备份当前数据
-cp -r joha/storage/txt joha/storage/txt.backup
+cp -r storage/txt storage/txt.backup
 
 # 2. 逐个检查分片文件
-ls -la joha/storage/txt/knowledge_*.json
+ls -la storage/txt/knowledge_*.json
 
 # 3. 移除损坏的分片
-# rm joha/storage/txt/knowledge_0003.json  # 谨慎操作
+# rm storage/txt/knowledge_0003.json  # 谨慎操作
 ```
 
 ---
@@ -320,11 +320,11 @@ ls -la joha/storage/txt/knowledge_*.json
 
 ```bash
 # 最近 50 条错误
-grep "error\|ERROR" joha/storage/johalog/ai.log | tail -50
+grep "error\|ERROR" storage/johalog/ai.log | tail -50
 
 # 查看 API 调用延迟
-grep "llm\|API" joha/storage/johalog/ai.log | tail -20
+grep "llm\|API" storage/johalog/ai.log | tail -20
 
 # 查看命令执行历史
-grep "command\|命令" joha/storage/johalog/ai.log | tail -20
+grep "command\|命令" storage/johalog/ai.log | tail -20
 ```

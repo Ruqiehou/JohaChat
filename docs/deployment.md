@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 ```bash
 # 连接配置
-cp joha/adapter/config/config.example.yaml joha/adapter/config/connection.yaml
+cp adapter/config.example.yaml adapter/connection.yaml
 
 # 主配置
 cp joha/config/config.example.json joha/config/config.json
@@ -182,10 +182,10 @@ sudo systemctl status joha
 
 ```bash
 # Linux/macOS
-tail -f joha/storage/johalog/ai.log
+tail -f storage/johalog/ai.log
 
 # Windows PowerShell
-Get-Content joha/storage/johalog/ai.log -Wait
+Get-Content storage/johalog/ai.log -Wait
 ```
 
 ### 6.2 在群内监控
@@ -213,11 +213,11 @@ from joha.adapter import MessageClient
 
 | 路径 | 内容 | 重要程度 |
 |------|------|----------|
-| `joha/storage/styles/` | 风格学习数据 | 高 |
-| `joha/storage/txt/` | 知识库数据 | 高 |
-| `joha/storage/history/` | 聊天历史 | 中 |
-| `joha/storage/user_profiles.json` | 用户画像 | 中 |
-| `joha/storage/group_modes.json` | 群组模式 | 低 |
+| `storage/styles/` | 风格学习数据 | 高 |
+| `storage/txt/` | 知识库数据 | 高 |
+| `storage/history/` | 聊天历史 | 中 |
+| `storage/user_profiles.json` | 用户画像 | 中 |
+| `storage/group_modes.json` | 群组模式 | 低 |
 | `joha/config/config.json` | 配置文件 | 高 |
 
 ### 7.2 备份脚本（Linux）
@@ -229,10 +229,10 @@ from joha.adapter import MessageClient
 BACKUP_DIR="./backups/$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
-cp -r joha/storage/styles "$BACKUP_DIR/"
-cp -r joha/storage/txt "$BACKUP_DIR/"
+cp -r storage/styles "$BACKUP_DIR/"
+cp -r storage/txt "$BACKUP_DIR/"
 cp joha/config/config.json "$BACKUP_DIR/"
-cp joha/storage/user_profiles.json "$BACKUP_DIR/"
+cp storage/user_profiles.json "$BACKUP_DIR/"
 
 echo "备份完成: $BACKUP_DIR"
 ```
@@ -287,7 +287,7 @@ diff joha/config/config.example.json joha/config/config.json
 2. **使用环境变量**: 敏感信息可通过 `JOHA_*` 环境变量覆盖
 3. **限制管理员**: 管理员 QQ 号应控制在最小范围
 4. **定期更换密钥**: LLM API Key 定期更换
-5. **日志清理**: 定期清理 `joha/storage/johalog/` 中的旧日志文件
+5. **日志清理**: 定期清理 `storage/johalog/` 中的旧日志文件
 
 ---
 

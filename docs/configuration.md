@@ -253,7 +253,7 @@ print(reply_cfg.thresholds.group)
 
 首次部署时，按以下清单确认配置：
 
-- [ ] `joha/adapter/config/connection.yaml` 已创建并填写正确
+- [ ] `adapter/connection.yaml` 已创建并填写正确
 - [ ] `joha/config/config.json` 已创建并填写正确
 - [ ] `joha/config/reply_decision.json` 已创建
 - [ ] LLM API Key 已填入且有效

@@ -46,7 +46,7 @@ Joha 采用基于概率计算的智能决策引擎。核心流程：
 1. 发送 `/模式` 检查是否处于被动模式
 2. 降低 `reply_decision.json` 中的 `thresholds.group`（如降到 0.45）
 3. 检查 config.json 中 API Key 是否正确
-4. 查看 `joha/storage/johalog/ai.log` 日志
+4. 查看 `storage/johalog/ai.log` 日志
 5. 确认 NapCatQQ 正常在线
 </details>
 
@@ -99,15 +99,15 @@ export JOHA_SETTINGS_DEBUG=false
 <details>
 <summary><b>Q: 如何查看运行日志？</b></summary>
 
-日志文件位于 `joha/storage/johalog/ai.log`。
+日志文件位于 `storage/johalog/ai.log`。
 
 实时查看：
 ```bash
 # Linux/macOS
-tail -f joha/storage/johalog/ai.log
+tail -f storage/johalog/ai.log
 
 # Windows PowerShell
-Get-Content joha/storage/johalog/ai.log -Wait
+Get-Content storage/johalog/ai.log -Wait
 ```
 </details>
 
@@ -178,7 +178,7 @@ pip install -r requirements.txt
 <details>
 <summary><b>Q: 知识库数据存在哪里？</b></summary>
 
-存在 `joha/storage/txt/` 目录下的分片 JSON 文件中（`knowledge_0001.json` 等），每片 100 条。建议定期备份此目录。
+存在 `storage/txt/` 目录下的分片 JSON 文件中（`knowledge_0001.json` 等），每片 100 条。建议定期备份此目录。
 </details>
 
 ---
