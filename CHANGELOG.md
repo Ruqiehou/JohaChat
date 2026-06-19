@@ -2,6 +2,58 @@
 
 所有重要版本变更记录。
 
+## v3.6.0 (2026-06-19)
+
+### Adapter 传输层 / 协议层拆分
+
+本次版本对 `adapter/` 进行职责拆分，将原 `adapter/kernel/` 拆分为传输层（transport）和协议层（protocol），新增兼容导出层（core）。
+
+#### 新增：传输层 `adapter/transport/`
+- **`NapCatClient`** 精简为纯传输层客户端，只负责 WebSocket 连接管理、消息收发循环和通用 `call_api()` 调用
+- 剥离所有 OneBot 业务方法（`send_group_message`、`get_group_list` 等），传输层不感知协议语义
+- 导出接口：`IClient`、`IConnectionEventListener`、`MessageSegmentType`
+
+#### 新增：协议层 `adapter/protocol/`
+- **`BotAPI`** 重构为直接调用 `client.call_api(action, params)`，不再依赖 NapCatClient 的便捷方法
+- **`MessageSegment`** 从 NapCatClient 中独立为 `message_segment.py`，专注消息段构建
+- 事件模型（`events.py`）、表情映射（`emoji_map.py`）、事件总线（`event_bus.py`）、事件分发器（`event_dispatcher.py`）全部迁入
+- 导出接口：`IBotAPI`、`IEventDispatcher`
+
+#### 新增：兼容导出层 `adapter/core/`
+- `adapter/core/__init__.py` 统一 re-export transport + protocol 的所有公开类
+- `adapter/core/client.py`、`adapter/core/events.py`、`adapter/core/interfaces.py` 提供子模块级兼容路径
+- 旧的 `from adapter.core.xxx import Yyy` 导入路径全部可用，无需修改业务代码
+
+#### 删除：`adapter/kernel/`
+- 原 `adapter/kernel/` 目录已完全移除，代码分别迁入 `transport/` 和 `protocol/`
+
+#### 版本号更新
+- `adapter/__version__` 从 `3.5.0` 升至 `3.6.0`
+
+### 文件变更清单
+
+**新增**
+- `adapter/transport/__init__.py` — 传输层入口
+- `adapter/transport/client.py` — NapCatClient（纯传输层）
+- `adapter/transport/interfaces.py` — 传输层接口定义
+- `adapter/protocol/__init__.py` — 协议层入口
+- `adapter/protocol/api.py` — BotAPI（协议层封装）
+- `adapter/protocol/events.py` — 事件数据模型
+- `adapter/protocol/event_bus.py` — 事件总线
+- `adapter/protocol/event_dispatcher.py` — 事件分发器
+- `adapter/protocol/interfaces.py` — 协议层接口定义
+- `adapter/protocol/message_segment.py` — 消息段构建器
+- `adapter/protocol/emoji_map.py` — QQ 表情映射
+- `adapter/core/__init__.py` — 兼容导出层
+- `adapter/core/client.py` — client 兼容重导出
+- `adapter/core/events.py` — events 兼容重导出
+- `adapter/core/interfaces.py` — interfaces 兼容重导出
+
+**删除**
+- `adapter/kernel/` — 旧内核目录（已拆分至 transport + protocol）
+
+---
+
 ## v3.5.0 (2026-05-30)
 
 ### 架构重构

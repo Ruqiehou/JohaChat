@@ -27,7 +27,7 @@ from .protocol import (
     RequestEvent,
 )
 
-__version__: str = "3.5.0"
+__version__: str = "3.6.0"
 
 __all__: list[str] = [
     "NapCatClient",
