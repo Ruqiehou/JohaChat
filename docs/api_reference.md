@@ -2,15 +2,15 @@
 
 ## 1. MessageClient
 
-路径: `joha.adapter.MessageClient`
+路径: `adapter.message_client.MessageClient`
 
 WebSocket 消息客户端入口类。
 
 ```python
-from joha.adapter import MessageClient
+from adapter import MessageClient
 
 client = MessageClient(
-    ws_url="ws://localhost:3002",
+    ws_url="ws://127.0.0.1:3002",
     access_token="",
 )
 ```
@@ -33,7 +33,7 @@ client = MessageClient(
 
 ## 2. BotAPI
 
-路径: `joha.adapter.core.api.BotAPI`
+路径: `adapter.kernel.api.BotAPI`
 
 OneBot 协议 API 封装。
 
@@ -54,7 +54,7 @@ api = bot.api
 
 ## 3. GroupMessageEvent
 
-路径: `joha.adapter.GroupMessageEvent`
+路径: `adapter.kernel.events.GroupMessageEvent`
 
 群消息事件模型。
 
@@ -80,12 +80,12 @@ api = bot.api
 
 ## 4. MessageHandler
 
-路径: `joha.core.handlers.message_handler`
+路径: `joha.core.message_handler`
 
 消息处理入口。
 
 ```python
-from joha.core.handlers import message_handler
+from joha.core import message_handler
 
 await message_handler.process_group_message(event, api)
 ```
@@ -224,35 +224,7 @@ pm.switch("alibaba")
 
 ---
 
-## 10. KnowledgeBase
-
-路径: `joha.tools.knowledge.core.KnowledgeBase`
-
-本地知识库 RAG 引擎。
-
-```python
-from joha.tools.knowledge.core import KnowledgeBase
-
-kb = KnowledgeBase()
-results = kb.search("什么是 Joha", top_k=3)
-kb.add_document(question="Joha 是什么？", answer="Joha 是一个智能群聊机器人")
-kb.save()
-```
-
-### 方法
-
-| 方法 | 参数 | 返回 | 说明 |
-|------|------|------|------|
-| `search(query, top_k=3)` | str, int | list[dict] | BM25 检索相关知识 |
-| `add_document(question, answer)` | str, str | None | 添加知识条目 |
-| `delete_document(doc_id)` | str | bool | 删除知识条目 |
-| `save()` | — | None | 持久化到磁盘 |
-| `reload()` | — | None | 从磁盘重新加载 |
-| `get_stats()` | — | dict | 获取知识库统计信息 |
-
----
-
-## 11. AdminManager
+## 10. AdminManager
 
 路径: `joha.managers.admin.AdminManager`
 
@@ -276,7 +248,7 @@ is_admin = admin_mgr.is_admin(user_id)
 
 ---
 
-## 12. ConfigManager
+## 11. ConfigManager
 
 路径: `joha.config.config_manager.ConfigManager`
 
@@ -302,14 +274,14 @@ napcat = config_manager.get("napcat", {})
 
 ---
 
-## 13. Logger
+## 12. Logger
 
-路径: `joha.config.infrastructure.logger`
+路径: `joha.config.logger`
 
 日志工具。
 
 ```python
-from joha.config.infrastructure.logger import tprint
+from joha.config.logger import tprint
 
 tprint("info", "这是一条信息日志")
 tprint("error", "这是一条错误日志")
@@ -324,7 +296,7 @@ tprint("debug", "调试信息: %s", some_value)
 
 ---
 
-## 14. CooldownManager
+## 13. CooldownManager
 
 路径: `joha.decision.cooldown.CooldownManager`
 
@@ -348,14 +320,14 @@ cd.record(group_id)
 
 ---
 
-## 15. GroupModeConfig
+## 14. GroupModeConfig
 
-路径: `joha.config.managers.group_mode_config.GroupModeConfig`
+路径: `joha.config.group_mode_config.GroupModeConfig`
 
 群组模式配置。
 
 ```python
-from joha.config.managers.group_mode_config import GroupModeConfig
+from joha.config.group_mode_config import GroupModeConfig
 
 mode_cfg = GroupModeConfig()
 mode = mode_cfg.get_mode(group_id)  # "active" 或 "passive"
@@ -373,14 +345,14 @@ mode_cfg.set_mode(group_id, "passive")
 
 ---
 
-## 16. RuntimeContext
+## 15. RuntimeContext
 
-路径: `joha.core.utils.runtime_context`
+路径: `joha.core.runtime_context`
 
 运行时全局上下文。
 
 ```python
-from joha.core.utils import runtime_context
+from joha.core import runtime_context
 
 # 设置机器人 QQ 号
 runtime_context.bot_uin = 123456789

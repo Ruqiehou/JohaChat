@@ -43,33 +43,27 @@ pip install -r requirements.txt
 ### 3.1 创建配置文件
 
 ```bash
-# 连接配置
-cp adapter/config.example.yaml adapter/connection.yaml
-
-# 主配置
+# 主配置（复制示例文件）
 cp joha/config/config.example.json joha/config/config.json
 
-# 回复决策配置（通常已存在，无需复制）
-# joha/config/reply_decision.json 保留默认即可
+# adapter/connection.yaml 已存在，直接编辑即可
 ```
 
 ### 3.2 编辑 connection.yaml
 
 ```yaml
 napcat:
-  ws_url: ws://localhost:3002           # NapCat WebSocket 地址
+  ws_url: ws://127.0.0.1:3002           # NapCat WebSocket 地址
   access_token: ""                       # Token，无鉴权留空
   bot_uin: "你的机器人QQ号"              # 必填
   root: "你的管理员QQ号"                  # 超级管理员
-  auto_start: false                      # 是否自动启动 NapCat
-  napcat_dir: napcat                     # NapCat 目录名
 
 settings:
   debug: true                            # 首次运行建议开启
 
 logging:
   level: INFO                            # DEBUG/INFO/WARNING/ERROR
-  log_dir: logs                          # 日志目录
+  log_dir: log                           # 日志目录
 ```
 
 ### 3.3 编辑 config.json
@@ -214,7 +208,7 @@ from joha.adapter import MessageClient
 | 路径 | 内容 | 重要程度 |
 |------|------|----------|
 | `storage/styles/` | 风格学习数据 | 高 |
-| `storage/txt/` | 知识库数据 | 高 |
+| `storage/personas/` | 人设数据 | 高 |
 | `storage/history/` | 聊天历史 | 中 |
 | `storage/user_profiles.json` | 用户画像 | 中 |
 | `storage/group_modes.json` | 群组模式 | 低 |
