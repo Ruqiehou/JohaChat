@@ -14,42 +14,37 @@
 
 ## adapter 适配层
 
-路径: `joha/adapter/`
+路径: `adapter/`
 
-负责与 NapCatQQ 消息平台对接，提供 WebSocket 连接和事件抽象。
+独立包，负责与 NapCatQQ 消息平台对接，提供 WebSocket 连接和事件抽象。
 
-### bot_client.py
+### message_client.py
 - **类**: `MessageClient`
-- **职责**: WebSocket 消息客户端入口，封装连接、心跳、重连逻辑
+- **职责**: 封装层，专注于事件路由和装饰器注册
 - **关键方法**:
   - `on_group_message()`: 装饰器，注册群消息事件回调
+  - `on_private_message()`: 装饰器，注册私聊消息事件回调
   - `start()`: 启动连接循环
   - `api`: 属性，暴露消息发送 API
 
-### napcat_launcher.py
-- **职责**: 自动检测 NapCatQQ 进程状态，支持自动启动
-- **关键函数**:
-  - `ensure_napcat_running()`: 确保 NapCatQQ 在运行
-
-### core/ 子包
+### kernel/ 子包
 
 | 文件 | 类/函数 | 职责 |
 |------|---------|------|
-| `client.py` | `NapCatClient` | 底层 WebSocket 连接管理 |
+| `client.py` | `NapCatClient` | 连接层：WebSocket 连接管理、消息收发 |
 | `api.py` | `BotAPI` | OneBot 协议 API 封装（发送消息等） |
 | `events.py` | `GroupMessageEvent` 等 | 事件数据模型 |
-| `event_bus.py` | `EventBus` | 内部事件总线，发布/订阅模式 |
-| `event_dispatcher.py` | `EventDispatcher` | 事件分发器，将事件路由到对应处理器 |
+| `event_bus.py` | `EventBus` | 内部事件总线 |
+| `event_dispatcher.py` | `EventDispatcher` | 事件分发器 |
 | `emoji_map.py` | — | QQ 表情 ID 与文字映射 |
 | `interfaces.py` | 接口定义 | 抽象接口 |
 
-### config/ 子包
+### config.py
+- **职责**: 连接配置读取、日志系统初始化
+- **关键类**: `Config`（环境变量配置）、`ConfigManager`（YAML 配置）
 
-| 文件 | 职责 |
-|------|------|
-| `config.py` | 配置读取与解析 |
-| `connection.yaml` | 实际连接配置 |
-| `config.example.yaml` | 连接配置模板 |
+### connection.yaml
+- **职责**: NapCat 连接配置（WebSocket 地址、QQ 号等）
 
 ---
 
@@ -57,10 +52,10 @@
 
 路径: `joha/core/`
 
-负责消息流入后的完整处理流水线。
+扁平结构，负责消息流入后的完整处理流水线。
 
-### handlers/message_handler.py
-- **类**: `MessageProcessor`（或等效函数）
+### message_handler.py
+- **类**: `MessageHandler`
 - **职责**: 
   - 接收原始群消息事件
   - 提取文本、图片、@信息等
@@ -68,13 +63,13 @@
   - 检测@/回复关系
   - 将消息送入队列合并系统
 
-### handlers/commands.py
+### commands.py
 - **职责**: 所有斜杠命令的解析与路由
 - **支持命令**:
   - 全员: `/好评`, `/差评`, `/群状态`
-  - 管理员: `/帮助`, `/全局启动`, `/全局关闭`, `/本群启动`, `/本群关闭`, `/模式`, `/管理员列表`, `/添加管理员`, `/删除管理员`, `/模型`, `/当前模型`, `/切换模型`, `/风格`, `/清除风格`, `/统计`, `/人设`, `/知识库统计`, `/知识库刷新`, `/知识库搜索`, `/知识库添加`, `/知识库重复`
+  - 管理员: `/帮助`, `/全局启动`, `/全局关闭`, `/本群启动`, `/本群关闭`, `/模式`, `/管理员列表`, `/添加管理员`, `/删除管理员`, `/模型`, `/当前模型`, `/切换模型`, `/风格`, `/清除风格`, `/统计`, `/人设`
 
-### handlers/service.py
+### service.py
 - **类**: `MessageService`
 - **职责**: 核心业务编排
   - 判断群组模式（active/passive）
@@ -82,20 +77,20 @@
   - 调用决策引擎判断是否回复
   - 调用生成器构建回复
 
-### builders/message_builder.py
+### message_builder.py
 - **职责**: 为 LLM 构建完整的对话上下文
   - 组装系统提示词（含人设）
   - 注入历史消息
-  - 调用 RAG 检索相关知识并注入上下文
+  - 注入工具描述
 
-### builders/message_queue.py
+### message_queue.py
 - **类**: `MessageQueueManager`
 - **职责**: 
   - 维护各群的消息队列
   - 在 `merge_window` 时间内合并多条消息
   - 队列满或超时时触发批量处理
 
-### utils/ 子包
+### 其他模块
 
 | 文件 | 职责 |
 |------|------|
@@ -105,6 +100,7 @@
 | `response_postprocessor.py` | 回复后处理（过滤、格式化） |
 | `image_utils.py` | 图片格式转换与处理 |
 | `clean_history.py` | 历史记录清洗与压缩 |
+| `hot_reload.py` | 开发时模块热重载 |
 
 ---
 
@@ -115,34 +111,24 @@
 负责 LLM 调用，封装多 Provider 差异。
 
 ### clients.py
-- **类**: `AIClient`
+- **类**: `BaseAIClient`, `OpenAICompatibleClient`
 - **职责**: OpenAI 协议兼容的底层 API 调用
-- **关键方法**:
-  - `chat_completion()`: 发送对话请求
-  - `stream_chat()`: 流式对话（如支持）
 
 ### providers.py
 - **类**: `ProviderManager`
-- **职责**: 
-  - 管理多个 LLM Provider
-  - 运行时切换当前 Provider
-  - 返回当前激活的客户端配置
+- **职责**: 管理多个 LLM Provider，运行时切换
 
 ### bot.py
 - **类**: `ChatEngine`
 - **职责**: 通用 AI 聊天引擎，支持工具调用和 Provider 自动切换
-- **关键方法**:
-  - `chat()`: 发送消息并获取回复
-  - `clear_history()`: 清除对话历史
 
 ### generator.py
 - **类**: `ReplyGenerator`
 - **职责**: 基于 MessageBuilder 构建的上下文，调用 ChatEngine 生成回复
-- **包含逻辑**: 工具调用循环、RAG 结果注入
 
 ### classifier.py
-- **类**: `TextClassifier`
-- **职责**: 文本分类任务（意图识别、情感分析等）
+- **类**: `QuestionClassifier`
+- **职责**: 文本分类任务（意图识别等）
 
 ---
 
@@ -155,51 +141,26 @@ Joha 的核心大脑，决定是否回复消息。
 ### decision_engine.py
 - **类**: `DecisionEngine`
 - **职责**: 总分架构的"总控"，按顺序调用各子模块
-- **流水线**:
-  1. `build_context()`: 构建决策上下文
-  2. `intent_classifier`: 意图分类
-  3. `compute_reply_prob()`: 计算回复概率
-  4. `should_reply()`: 综合判断是否回复
 
 ### reply_decision.py
-- **类**: `ReplyDecision`
-- **职责**: 核心概率计算
-- **算法**:
-  - 收集各因子分数（反馈权重、群动态、内容质量、意图等）
-  - Logit 累加
-  - Sigmoid 归一化到 `[0, 1]`
-  - 与阈值比较
+- **职责**: 核心概率计算（Logit 累加 + Sigmoid 归一化）
 
 ### reply_config.py
-- **类**: `ReplyConfig`
-- **职责**: 
-  - 懒加载 `reply_decision.json`
-  - 支持热重载
-  - 提供配置项的属性访问
+- **职责**: `reply_decision.json` 的懒加载与热重载
 
 ### intent_classifier.py
-- **类**: `IntentClassifier`
 - **职责**: AI + 规则双重意图识别
-- **输出**: 意图类型 + 置信度
 
 ### command_analyzer.py
-- **类**: `CommandAnalyzer`
 - **职责**: 自然语言命令解析
-- **示例**: "帮助" → `/帮助`, "模型列表" → `/模型`
 
 ### group_state.py
-- **类**: `GroupStateTracker`
-- **职责**: 
-  - 追踪每个群的消息频率
-  - 计算群活跃度等级（very_busy / busy / normal / quiet / dead）
-  - 持久化到 `joha/storage/group_states.json`
+- **职责**: 群活跃度追踪、消息频率统计
+- **持久化**: `storage/group_states.json`
 
 ### cooldown.py
-- **类**: `CooldownManager`
-- **职责**: 
-  - 维护单群冷却和全局冷却状态
-  - 检查是否可以回复
-  - 记录每次回复时间
+- **职责**: 防刷屏，限制短时间连续回复
+- **持久化**: `storage/cooldown.json`
 
 ---
 
@@ -207,42 +168,24 @@ Joha 的核心大脑，决定是否回复消息。
 
 路径: `joha/managers/`
 
-负责各类数据的持久化与管理。
-
 ### personas.py
-- **类**: `PersonaManager`
-- **职责**: 
-  - 多维度人设参数管理
-  - 性格维度、表达风格、社交行为、语言特征、话题偏好
-  - 默认人设为"大学生"角色
+- **职责**: 多维度人设参数管理
+- **存储**: `storage/personas/`
 
 ### style_learner.py
-- **类**: `StyleLearner`
-- **职责**: 
-  - 自动学习群成员说话风格
-  - 提取词汇习惯、句式特征、表情使用等
-  - 数据存储在 `joha/storage/styles/`
+- **职责**: 自动学习群成员说话风格
+- **存储**: `storage/styles/`
 
 ### history_manager.py
-- **类**: `HistoryManager`
-- **职责**: 
-  - 聊天记录的增删查
-  - 按群、按用户维度的历史查询
-  - 历史清洗与压缩
+- **职责**: 聊天记录的增删查（只存用户消息，不含回复）
+- **存储**: `storage/history/`
 
 ### user_profile.py
-- **类**: `UserProfileManager`
-- **职责**: 
-  - 用户画像持久化
-  - 记录用户偏好、聊天习惯、互动频率
-  - 存储在 `joha/storage/user_profiles.json`
+- **职责**: 用户画像持久化
+- **存储**: `storage/user_profiles.json`
 
 ### admin.py
-- **类**: `AdminManager`
-- **职责**: 
-  - 管理员列表维护
-  - 权限检查（`is_admin(user_id)`）
-  - 支持多级权限
+- **职责**: 管理员列表维护、权限检查
 
 ---
 
@@ -250,29 +193,13 @@ Joha 的核心大脑，决定是否回复消息。
 
 路径: `joha/tools/`
 
-采用函数 + 元信息模式，支持自动发现注册。
-
-### knowledge/core.py
-- **类**: `KnowledgeBase`
-- **职责**: 
-  - 本地 RAG 引擎
-  - BM25 检索算法
-  - 分片式 JSON 存储（每片 100 条）
-  - 增量热重载
-- **存储位置**: `joha/storage/txt/knowledge_*.json`
+模块化工具，每个工具独立封装。
 
 ### search/
 - **职责**: 网络搜索工具
-- **配置**: 在 `config.json` 中配置搜索 API
 
 ### webpage/
 - **职责**: 网页内容抓取
-- **输入**: URL
-- **输出**: 网页正文摘要
-
-### link_preview/
-- **职责**: 链接预览
-- **输出**: 标题、摘要、图片
 
 ---
 
@@ -280,30 +207,24 @@ Joha 的核心大脑，决定是否回复消息。
 
 路径: `joha/config/`
 
-### managers/config_manager.py
+扁平结构，所有模块直接在 `config/` 下。
+
+### config_manager.py
 - **类**: `ConfigManager`
-- **职责**: 
-  - JSON 配置文件读取
-  - 环境变量覆盖（`JOHA_*` 前缀）
-  - 配置项访问接口 `get(key, default)`
+- **职责**: JSON 配置文件读取、环境变量覆盖
 
-### managers/group_mode_config.py
+### group_mode_config.py
 - **类**: `GroupModeConfig`
-- **职责**: 
-  - 逐群的 active/passive 模式管理
-  - 持久化到 `joha/storage/group_modes.json`
+- **职责**: 逐群的 active/passive 模式管理
+- **持久化**: `storage/group_modes.json`
 
-### infrastructure/logger.py
-- **类**: `Logger`
-- **职责**: 
-  - 多级别日志（DEBUG/INFO/WARNING/ERROR）
-  - 文件轮转
-  - 预定义日志记录器
-  - 便捷函数 `tprint(level, message)`
+### logger.py
+- **职责**: 多级别日志、文件轮转、预定义记录器
 
-### infrastructure/cache.py
-- **类**: `Cache`
-- **职责**: 
-  - LRU 缓存
-  - TTL 过期
-  - 函数结果缓存装饰器
+### cache.py
+- **类**: `LRUCache`
+- **职责**: LRU 缓存、TTL 过期、函数结果缓存装饰器
+
+### paths.py
+- **职责**: 存储路径集中定义（`STORAGE_ROOT`、`HISTORY_DIR` 等）
+- **运行时**: 自动创建 `storage/` 及其子目录
