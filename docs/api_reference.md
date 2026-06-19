@@ -100,12 +100,12 @@ await message_handler.process_group_message(event, api)
 
 ## 5. MessageService
 
-路径: `joha.core.handlers.service`
+路径: `joha.core.service`
 
 核心业务编排。
 
 ```python
-from joha.core.handlers.service import MessageService
+from joha.core import MessageService
 
 service = MessageService()
 await service.process_message(event, api, context)
@@ -278,12 +278,12 @@ is_admin = admin_mgr.is_admin(user_id)
 
 ## 12. ConfigManager
 
-路径: `joha.config.managers.config_manager.ConfigManager`
+路径: `joha.config.config_manager.ConfigManager`
 
 配置管理器单例。
 
 ```python
-from joha.config.managers.config_manager import config_manager
+from joha.config.config_manager import config_manager
 
 # 获取配置项
 debug = config_manager.get("settings.debug", False)

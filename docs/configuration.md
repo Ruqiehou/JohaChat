@@ -4,21 +4,20 @@
 
 | 配置文件 | 路径 | 用途 | 是否必填 |
 |----------|------|------|----------|
-| 连接配置 | `joha/adapter/config/connection.yaml` | NapCatQQ WebSocket 连接参数 | 是 |
+| 连接配置 | `adapter/connection.yaml` | NapCatQQ WebSocket 连接参数 | 是 |
 | 主配置 | `joha/config/config.json` | LLM、决策参数、Provider 等 | 是 |
 | 回复决策配置 | `joha/config/reply_decision.json` | 回复概率参数（支持热加载） | 是 |
 | 配置示例 | `joha/config/config.example.json` | 主配置模板 | 否 |
-| 连接示例 | `joha/adapter/config/config.example.yaml` | 连接配置模板 | 否 |
 
 > **首次使用**: 复制示例配置文件并修改。
 
 ---
 
-## 2. 连接配置 — `joha/adapter/config/connection.yaml`
+## 2. 连接配置 — `adapter/connection.yaml`
 
 ```yaml
 napcat:
-  ws_url: "ws://localhost:3002"      # NapCatQQ WebSocket 地址
+  ws_url: "ws://127.0.0.1:3002"      # NapCatQQ WebSocket 地址
   access_token: ""                    # 鉴权 Token（如需要）
   bot_uin: 8888888888                 # 机器人 QQ 号
 
@@ -30,7 +29,7 @@ settings:
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `napcat.ws_url` | string | `ws://localhost:3002` | NapCatQQ 的 WebSocket 正向连接地址 |
+| `napcat.ws_url` | string | `ws://127.0.0.1:3002` | NapCatQQ 的 WebSocket 正向连接地址 |
 | `napcat.access_token` | string | `""` | WebSocket 鉴权 Token，无鉴权留空 |
 | `napcat.bot_uin` | int/string | `8888888888` | 机器人的 QQ 号码 |
 | `settings.debug` | bool | `true` | 调试模式开关，开启会输出更多日志 |
