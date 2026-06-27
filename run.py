@@ -4,6 +4,8 @@ Joha 统一启动入口
 
 from adapter import MessageClient, GroupMessageEvent, config_manager
 from joha.core import message_handler, runtime_context
+from joha.core.hot_reload import hot_reloader
+
 
 NAPCAT_WS_URL = "ws://127.0.0.1:3002"
 NAPCAT_ACCESS_TOKEN = ""
@@ -29,7 +31,10 @@ async def joha_agent(event: GroupMessageEvent):
 
 
 def main() -> None:
+    if config_manager.get("settings.hot_reload", False):
+        hot_reloader.start()
     client.start(debug=config_manager.get("settings.debug", DEBUG))
+
 
 
 if __name__ == "__main__":
