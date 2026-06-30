@@ -17,7 +17,7 @@ except ImportError:
 ROOT_DIR = Path(__file__).resolve().parent
 REQUIREMENTS_FILE = ROOT_DIR / "requirements.txt"
 ROOT_CONFIG_FILE = ROOT_DIR / "config.yaml"
-CONNECTION_CONFIG_FILE = ROOT_DIR / "joha" / "adapter" / "connection.yaml"
+CONNECTION_CONFIG_FILE = ROOT_DIR / "adapter" / "connection.yaml"
 APP_CONFIG_FILE = ROOT_DIR / "joha" / "config" / "config.json"
 RUN_FILE = ROOT_DIR / "run.py"
 
@@ -125,7 +125,7 @@ def check_files(report: SetupReport) -> None:
     if ROOT_CONFIG_FILE.exists():
         report.add_ok("根目录 config.yaml 存在")
     else:
-        report.add_warn("根目录 config.yaml 不存在；当前启动主要使用 joha/adapter/connection.yaml")
+        report.add_warn("根目录 config.yaml 不存在；当前启动主要使用 adapter/connection.yaml")
 
 
 def check_dirs(report: SetupReport, fix: bool) -> None:
@@ -166,45 +166,36 @@ def check_napcat_config(report: SetupReport) -> None:
         report.add_err("napcat 配置必须是对象")
         return
 
-    ws_uri = napcat.get("ws_uri")
-    ws_token = napcat.get("ws_token")
+    ws_url = napcat.get("ws_url")
+    access_token = napcat.get("access_token")
     webui_uri = napcat.get("webui_uri")
-    auto_start = napcat.get("auto_start", False)
-    napcat_dir = napcat.get("napcat_dir", "napcat")
 
     if bot_uin:
         report.add_ok(f"机器人 QQ：{bot_uin}")
     else:
-        report.add_err("未配置 bt_uin（机器人 QQ 号）")
+        report.add_err("未配置 bot_uin（机器人 QQ 号）")
 
-    if ws_uri:
-        parsed = urlparse(str(ws_uri))
+    if ws_url:
+        parsed = urlparse(str(ws_url))
         if parsed.scheme in {"ws", "wss"} and parsed.hostname and parsed.port:
-            report.add_ok(f"NapCat WebSocket：{ws_uri}")
+            report.add_ok(f"NapCat WebSocket：{ws_url}")
             check_ws_port(report, parsed.hostname, parsed.port)
         else:
-            report.add_err("napcat.ws_uri 格式不正确，示例：ws://localhost:3002")
+            report.add_err("napcat.ws_url 格式不正确，示例：ws://127.0.0.1:3002")
     else:
-        report.add_err("未配置 napcat.ws_uri")
+        report.add_err("未配置 napcat.ws_url")
 
-    if ws_token:
-        report.add_ok(f"NapCat WebSocket Token：{mask_secret(ws_token)}")
+    if access_token:
+        report.add_ok(f"NapCat WebSocket Token：{mask_secret(access_token)}")
     else:
-        report.add_warn("napcat.ws_token 为空；如果 NapCat 配置了 token，机器人会连接失败")
+        report.add_warn("napcat.access_token 为空；如果 NapCat 配置了 token，机器人会连接失败")
 
     if webui_uri:
         report.add_ok(f"NapCat WebUI：{webui_uri}")
     else:
         report.add_warn("未配置 napcat.webui_uri")
 
-    if auto_start:
-        napcat_path = ROOT_DIR / str(napcat_dir)
-        if napcat_path.exists():
-            report.add_ok(f"NapCat 自动启动目录存在：{napcat_path.relative_to(ROOT_DIR)}")
-        else:
-            report.add_warn(f"已启用 auto_start，但 NapCat 目录不存在：{napcat_path.relative_to(ROOT_DIR)}")
-    else:
-        report.add_warn("NapCat auto_start=false，需要先手动启动 NapCat")
+    report.add_warn("NapCat 自动拉起已移除，请先手动启动 NapCat")
 
 
 def check_ws_port(report: SetupReport, host: str, port: int) -> None:
@@ -283,7 +274,7 @@ def print_steps() -> None:
         "1. 安装 Python 3.10 或更高版本，并确认命令行可执行 python。",
         "2. 在项目根目录执行：python -m pip install -r requirements.txt",
         "3. 如需网页截图功能，执行：python -m playwright install chromium",
-        "4. 编辑 joha/adapter/connection.yaml：填写 bt_uin、napcat.ws_uri、napcat.ws_token，并确认端口与 NapCat 一致。",
+        "4. 编辑 adapter/connection.yaml：填写 bot_uin、napcat.ws_url、napcat.access_token，并确认端口与 NapCat 一致。",
         "5. 编辑 joha/config/config.json：设置 chat-llm.active_provider，并确保对应 provider 的 api_key、base_url、model 完整。",
         "6. 启动 NapCat，并确保 WebSocket 服务已开启。",
         "7. 回到项目根目录执行：python setup.py --check，确认没有 [ERR]。",
