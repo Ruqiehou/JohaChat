@@ -34,10 +34,19 @@ ENV/
 
 # 数据文件（运行时数据目录，整目录忽略）
 johadata/
+log/
+*.log
+backups/
+joha.out
 
 # 配置文件（敏感信息）
+joha/config/config.json
 api_config.json
 .env
+
+# 测试与工具缓存
+.pytest_cache/
+.zcode/
 
 # Napcat
 napcat/
