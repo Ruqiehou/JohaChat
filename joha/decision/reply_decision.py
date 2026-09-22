@@ -301,18 +301,29 @@ def compute_reply_prob(ctx: MessageContext, cooldown: CooldownManager = cooldown
     logit += _group_dynamic_score(ctx)
 
     logit += profile.score()
-    logit += cooldown.get_cooldown_penalty(ctx.group_id)
+    logit += cooldown.get_cooldown_penalty(ctx.group_id, ctx.user_id)
     if ctx.user_rate_limited:
         logit += lb["rate_limit_score"]
 
     return 1.0 / (1.0 + math.exp(-logit))
 
 
+def _is_privileged_user(user_id: str) -> bool:
+    profile = user_profile_manager.get(user_id)
+    if profile.is_vip:
+        return True
+    try:
+        from joha.managers.admin import admin_manager
+        return admin_manager.is_admin(int(user_id))
+    except (TypeError, ValueError):
+        return False
+
+
 def _get_threshold(ctx: MessageContext) -> float:
     th = reply_cfg.thresholds
     if ctx.is_private:
         base = th["private"]
-    elif user_profile_manager.get(ctx.user_id).is_vip:
+    elif _is_privileged_user(ctx.user_id):
         base = th["admin"]
     else:
         mpm = ctx.group_msg_per_minute
@@ -340,11 +351,16 @@ def _get_threshold(ctx: MessageContext) -> float:
     return max(th.get("min", 0.15), min(th.get("max", 0.85), base))
 
 
-def should_reply(ctx: MessageContext, cooldown: CooldownManager = cooldown_manager) -> bool:
-    prob = compute_reply_prob(ctx, cooldown)
+def should_reply(
+    ctx: MessageContext,
+    cooldown: CooldownManager = cooldown_manager,
+    prob: Optional[float] = None,
+) -> bool:
+    if prob is None:
+        prob = compute_reply_prob(ctx, cooldown)
     threshold = _get_threshold(ctx)
     if prob >= threshold:
-        cooldown.record_reply(ctx.group_id)
+        cooldown.record_reply(ctx.group_id, ctx.user_id)
         return True
     return False
 

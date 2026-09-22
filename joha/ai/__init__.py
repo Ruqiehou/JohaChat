@@ -1,14 +1,10 @@
-# AI 驱动模块 - 客户端、生成器、Provider、聊天引擎、分类器
+# AI 驱动模块 - 客户端、生成器、Provider、聊天引擎
 from .clients import OpenAICompatibleClient, BaseAIClient, create_client_from_provider
 from .generator import generator, Generator
 from .providers import provider_manager, ProviderManager, Provider
-from .bot import chat_engine, ChatEngine, get_chat_engine
-from .classifier import classifier, QuestionClassifier
 
 __all__ = [
     'OpenAICompatibleClient', 'BaseAIClient', 'create_client_from_provider',
     'generator', 'Generator',
     'provider_manager', 'ProviderManager', 'Provider',
-    'chat_engine', 'ChatEngine', 'get_chat_engine',
-    'classifier', 'QuestionClassifier',
 ]

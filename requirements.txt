@@ -7,5 +7,4 @@ openai>=1.0.0
 pyyaml>=6.0
 
 # 可选依赖
-python-dotenv>=1.0.0  # 环境变量管理
 watchdog>=3.0.0       # 开发热重载

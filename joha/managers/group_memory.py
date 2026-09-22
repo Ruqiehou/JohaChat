@@ -7,7 +7,7 @@
 - 用户关系标签
 
 不与 group_conversation 混用，独立文件：
-  storage/memory/group_{group_id}.json
+  johadata/memory/group_{group_id}.json
 """
 import json
 import os

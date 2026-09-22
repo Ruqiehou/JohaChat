@@ -32,22 +32,8 @@ ENV/
 *.swo
 *~
 
-# 日志文件
-logs/
-*.log
-*.log.*
+# 数据文件（运行时数据目录，整目录忽略）
 johadata/
-
-# 数据文件（保留目录结构，忽略具体数据；storage/ 位于项目根目录）
-johadata/history/*.json
-johadata/styles/*.json
-johadata/johalog/*.log
-johadata/johalog/*.log.*
-johadata/user_profiles.json
-johadata/group_modes.json
-johadata/group_states.json
-johadata/cooldown.json  
-!johadata/.gitkeep
 
 # 配置文件（敏感信息）
 api_config.json

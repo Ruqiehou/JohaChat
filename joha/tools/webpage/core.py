@@ -65,6 +65,30 @@ class WebpageTool:
     def _is_valid_url(self, url: str) -> bool:
         try:
             result = urlparse(url)
-            return all([result.scheme, result.netloc]) and result.scheme in ['http', 'https']
+            
+            # 检查协议
+            if not all([result.scheme, result.netloc]) or result.scheme not in ['http', 'https']:
+                return False
+            
+            # 获取主机名并检查是否为内网地址
+            hostname = result.hostname
+            if not hostname:
+                return False
+            
+            # 禁止访问内网地址和回环地址
+            import ipaddress
+            try:
+                # 尝试解析为 IP 地址
+                ip = ipaddress.ip_address(hostname)
+                # 检查是否为私有地址或回环地址
+                if ip.is_private or ip.is_loopback or ip.is_link_local:
+                    return False
+            except ValueError:
+                # 不是 IP 地址，是域名
+                # 禁止访问 localhost 相关域名
+                if hostname.lower() in ['localhost', '127.0.0.1', '::1', '0.0.0.0']:
+                    return False
+            
+            return True
         except Exception:
             return False

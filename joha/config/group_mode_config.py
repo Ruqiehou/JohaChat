@@ -13,13 +13,14 @@ class GroupModeConfig:
 
     def __init__(self, config_path: Optional[str] = None):
         self._modes: Dict[str, str] = {}
+        self._config_path = config_path or GROUP_MODES_FILE
         self.load()
 
     def load(self) -> None:
         """从磁盘加载群组模式配置"""
         try:
-            if os.path.exists(GROUP_MODES_FILE):
-                with open(GROUP_MODES_FILE, "r", encoding="utf-8") as f:
+            if os.path.exists(self._config_path):
+                with open(self._config_path, "r", encoding="utf-8") as f:
                     self._modes = json.load(f)
             else:
                 self._modes = {}
@@ -31,9 +32,9 @@ class GroupModeConfig:
     def save(self) -> None:
         """保存群组模式配置到磁盘"""
         try:
-            storage_dir = os.path.dirname(GROUP_MODES_FILE)
+            storage_dir = os.path.dirname(self._config_path)
             os.makedirs(storage_dir, exist_ok=True)
-            with open(GROUP_MODES_FILE, "w", encoding="utf-8") as f:
+            with open(self._config_path, "w", encoding="utf-8") as f:
                 json.dump(self._modes, f, ensure_ascii=False, indent=2)
         except Exception as e:
             johalog_logger.error(f"保存群组模式配置失败: {e}")

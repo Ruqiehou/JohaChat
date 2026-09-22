@@ -53,7 +53,10 @@ class Message:
                 if seg_type == "text":
                     text_parts.append(str(seg_data.get("text", "")))
                 elif seg_type == "face":
-                    face_id = int(seg_data.get("id", 0))
+                    try:
+                        face_id = int(seg_data.get("id", 0))
+                    except (ValueError, TypeError):
+                        face_id = 0
                     name = get_face_name(face_id)
                     face_ids.append(face_id)
                     face_names.append(name)
@@ -65,7 +68,10 @@ class Message:
                 elif seg_type == "poke":
                     text_parts.append("[戳一戳]")
                 elif seg_type == "image":
-                    sub_type = int(seg_data.get("sub_type", 0))
+                    try:
+                        sub_type = int(seg_data.get("sub_type", 0))
+                    except (ValueError, TypeError):
+                        sub_type = 0
                     if sub_type == 1:
                         has_sticker = True
                         summary = seg_data.get("summary") or "表情包"
@@ -199,7 +205,7 @@ class PrivateMessageEvent(BaseEvent):
             sub_type=str(data.get("sub_type", "")),
             message_id=int(data.get("message_id", 0)),
             user_id=int(data.get("user_id", 0)),
-            user_name=str(data.get("user_name", "")),
+            user_name=uname,  # 使用计算好的 uname 而不是重新从 data 获取
             message=msg,
             raw_message=str(data.get("raw_message", "")),
             font=int(data.get("font", 0)),

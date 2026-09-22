@@ -32,6 +32,7 @@ class MessageContext:
     reply_to_bot: bool = False
     is_pure_sticker_or_image: bool = False
     force_reply: bool = False
+    is_private: bool = False
 
     # 消息队列合并结果
     messages: list = field(default_factory=list)
@@ -82,6 +83,7 @@ class MessageService:
         is_at_bot: bool = False,
         reply_to_bot: bool = False,
         is_pure_sticker_or_image: bool = False,
+        is_private: bool = False,
         images: list = None,
         merged_text: str = "",
         merged_messages: list = None,
@@ -109,6 +111,7 @@ class MessageService:
             reply_to_bot=reply_to_bot,
             is_pure_sticker_or_image=is_pure_sticker_or_image,
             force_reply=force_reply,
+            is_private=is_private,
             messages=merged_messages,
             merged_text=merged_text or message,
             is_merged=is_merged,
@@ -166,10 +169,18 @@ class MessageService:
             is_at_bot=ctx.is_at_bot,
             reply_to_bot=ctx.reply_to_bot,
             is_pure_media=ctx.is_pure_sticker_or_image,
+            is_private=ctx.is_private,
             group_mode=group_mode,
             force_reply=ctx.force_reply,
         )
         self.reply_decisions += 1
+
+        # 决策之后再记互动，避免当前这条消息立刻拉低画像分
+        try:
+            from joha.managers.user_profile import user_profile_manager
+            user_profile_manager.record_interaction(ctx.user_id)
+        except Exception as e:
+            johalog_logger.error(f"记录用户互动失败：{e}")
 
         ctx.should_reply = result.should_reply
 
@@ -214,10 +225,16 @@ class MessageService:
 
     async def _context_stage(self, ctx: MessageContext) -> bool:
         try:
+            # 加载历史时排除当前消息（已在 _learn_stage 中写入）
             history = history_manager.load_history(ctx.user_id, group_id=ctx.group_id)
+            # 从历史中移除当前消息，避免重复注入
+            current_msg = ctx.merged_text or ctx.message
+            if history and history[-1].get("message") == current_msg:
+                history = history[:-1]
+            
             ctx.context_messages = message_builder.build(
                 user_id=ctx.user_id,
-                message=ctx.merged_text or ctx.message,
+                message=current_msg,
                 images=ctx.images,
                 persona_name="joha",
                 history=history,
@@ -277,7 +294,6 @@ class MessageService:
     # ==================== 模式管理 ====================
 
     def get_global_mode(self) -> str:
-        config.load()
         mode = config.get('bot.mode', self.mode)
         if mode not in ["active", "passive"]:
             return self.mode
@@ -287,7 +303,6 @@ class MessageService:
     def set_global_mode(self, mode: str) -> None:
         if mode not in ["active", "passive"]:
             raise ValueError(f"无效的模式: {mode}")
-        config.load()
         config.set('bot.mode', mode)
         config.save()
         self.mode = mode

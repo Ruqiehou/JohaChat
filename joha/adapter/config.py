@@ -1,6 +1,13 @@
 """
 配置模块
-YAML 配置管理、环境变量加载与日志系统，全部采用强类型声明
+YAML 配置管理、日志系统
+
+配置来源：
+  - 连接配置：joha/adapter/connection.yaml（YAML）
+  - 应用配置：joha/config/config.json（JSON，由 joha.config.config_manager 管理）
+  - 决策参数：joha/config/reply_decision.json（JSON，由 joha.decision.reply_decision 管理）
+
+所有配置均来源于文件，不再读取环境变量 / .env。
 """
 
 from __future__ import annotations
@@ -10,14 +17,9 @@ import logging.handlers
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Final, Optional, TypeAlias
+from typing import Any, Dict, TypeAlias
 
 import yaml
-from dotenv import load_dotenv
-
-# 加载环境变量
-_env_path: Path = Path(__file__).parent / ".env"
-load_dotenv(_env_path)
 
 # ---- 类型别名 ----
 YamlConfig: TypeAlias = Dict[str, Any]
@@ -189,97 +191,30 @@ class ConfigManager:
 config_manager: ConfigManager = ConfigManager()
 
 
-# ==================== 环境变量配置类 ====================
-
-class Config:
-    """环境变量配置类（兼容旧版）
-
-    所有常量均通过 Final 标记，保证不可覆盖。
-    环境变量只在类定义时读取一次，提升性能。
-    """
-
-    # NapCat 连接配置
-    NAPCAT_WS_URL: Final[str] = os.getenv("NAPCAT_WS_URL", "ws://127.0.0.1:3001")
-    NAPCAT_ACCESS_TOKEN: Final[str] = os.getenv("NAPCAT_ACCESS_TOKEN", "")
-
-    # 日志配置
-    LOG_LEVEL: Final[str] = os.getenv("LOG_LEVEL", "INFO")
-    LOG_FORMAT: Final[str] = (
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    LOG_DIR: Final[str] = os.getenv("LOG_DIR", "log")
-
-    # 机器人配置
-    BOT_DEBUG: Final[bool] = os.getenv("BOT_DEBUG", "false").lower() == "true"
-
-    @classmethod
-    def reload_env(cls, env_file: Optional[str] = None) -> None:
-        """重新加载环境变量（热更新用）
-
-        Args:
-            env_file: 环境变量文件路径，默认项目根目录 .env
-        """
-        if env_file:
-            load_dotenv(env_file, override=True)
-        else:
-            load_dotenv(Path(__file__).parent / ".env", override=True)
-        # 更新类属性
-        cls.NAPCAT_WS_URL = os.getenv("NAPCAT_WS_URL", cls.NAPCAT_WS_URL)
-        cls.NAPCAT_ACCESS_TOKEN = os.getenv("NAPCAT_ACCESS_TOKEN", cls.NAPCAT_ACCESS_TOKEN)
-        cls.LOG_LEVEL = os.getenv("LOG_LEVEL", cls.LOG_LEVEL)
-        cls.LOG_DIR = os.getenv("LOG_DIR", cls.LOG_DIR)
-        cls.BOT_DEBUG = os.getenv("BOT_DEBUG", str(cls.BOT_DEBUG)).lower() == "true"
-
-    @classmethod
-    def get(cls, key: str, default: str = "") -> str:
-        """获取配置值
-
-        Args:
-            key: 配置键名
-            default: 默认值
-
-        Returns:
-            配置值
-        """
-        return os.getenv(key, default)
-
-    @classmethod
-    def get_bool(cls, key: str, default: bool = False) -> bool:
-        """获取布尔配置值
-
-        Args:
-            key: 配置键名
-            default: 默认值
-
-        Returns:
-            布尔配置值
-        """
-        raw: str = os.getenv(key, str(default)).lower()
-        return raw in ("true", "1", "yes", "y")
-
-
 # ==================== 日志系统 ====================
 
 _logging_setup_done: bool = False
 
 
 def setup_logging(
-    log_level: Optional[str] = None,
-    log_dir: Optional[str] = None,
+    log_level: str | None = None,
+    log_dir: str | None = None,
 ) -> None:
     """设置日志系统（按日期分隔文件，幂等调用）
 
+    日志级别与目录优先取自 connection.yaml 的 logging 段，未配置时使用默认值。
+
     Args:
-        log_level: 日志级别，默认从 Config 读取
-        log_dir: 日志目录，默认从 Config 读取
+        log_level: 日志级别，默认从 YAML 读取
+        log_dir: 日志目录，默认从 YAML 读取
     """
     global _logging_setup_done
     if _logging_setup_done:
         return
     _logging_setup_done = True
 
-    level: str = log_level if log_level is not None else Config.LOG_LEVEL
-    directory: str = log_dir if log_dir is not None else Config.LOG_DIR
+    level: str = log_level if log_level is not None else config_manager.get("logging.level", "INFO")
+    directory: str = log_dir if log_dir is not None else config_manager.get("logging.log_dir", "log")
 
     # 创建日志目录
     log_path: Path = Path(directory)
@@ -293,16 +228,18 @@ def setup_logging(
     root.setLevel(getattr(logging, level.upper(), logging.INFO))
     root.handlers.clear()
 
+    log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
     # 文件处理器
     fh: logging.FileHandler = logging.FileHandler(log_file, encoding="utf-8")
     fh.setLevel(getattr(logging, level.upper(), logging.INFO))
-    fh.setFormatter(logging.Formatter(Config.LOG_FORMAT))
+    fh.setFormatter(logging.Formatter(log_format))
     root.addHandler(fh)
 
     # 控制台处理器
     ch: logging.StreamHandler = logging.StreamHandler()
     ch.setLevel(getattr(logging, level.upper(), logging.INFO))
-    ch.setFormatter(logging.Formatter(Config.LOG_FORMAT))
+    ch.setFormatter(logging.Formatter(log_format))
     root.addHandler(ch)
 
     # 抑制第三方库日志

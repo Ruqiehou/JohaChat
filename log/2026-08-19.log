@@ -1,0 +1,110 @@
+2026-08-19 15:41:07,484 - terminal - INFO - [消息队列] 已初始化，合并窗口: 120.0秒, 最大队列大小: 5, 最小合并数: 2
+2026-08-19 15:41:07,555 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:41:07,558 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:41:07,560 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:41:07,563 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:41:07,564 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:41:07,575 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:41:07,578 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:41:07,581 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:41:07,585 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:41:07,585 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:41:07,593 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:41:07,598 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:41:07,600 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:41:07,605 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:41:07,606 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:41:07,613 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:41:07,617 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:41:07,619 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:41:07,623 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:41:07,623 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:45:50,002 - terminal - INFO - [消息队列] 已初始化，合并窗口: 120.0秒, 最大队列大小: 5, 最小合并数: 2
+2026-08-19 15:45:50,121 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:45:50,124 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:45:50,127 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:45:50,131 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:45:50,131 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:45:50,137 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:45:50,141 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:45:50,143 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:45:50,147 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:45:50,147 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:45:50,150 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:45:50,155 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:45:50,159 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:45:50,163 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:45:50,165 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:45:50,174 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:45:50,177 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:45:50,180 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:45:50,185 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:45:50,186 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:45:55,364 - ddgs.ddgs - INFO - Error in engine wikipedia: TimeoutException(TimeoutError('error sending request for url (https://en.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=Python)', 'https://en.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=Python'))
+2026-08-19 15:45:55,365 - ddgs.ddgs - INFO - Error in engine grokipedia: TimeoutException(TimeoutError('error sending request for url (https://grokipedia.com/api/typeahead?query=Python&limit=1)', 'https://grokipedia.com/api/typeahead?query=Python&limit=1'))
+2026-08-19 15:46:00,377 - ddgs.ddgs - INFO - Error in engine mojeek: TimeoutException(TimeoutError('error sending request for url (https://www.mojeek.com/search?q=Python)', 'https://www.mojeek.com/search?q=Python'))
+2026-08-19 15:46:00,377 - ddgs.ddgs - INFO - Error in engine duckduckgo: TimeoutException(TimeoutError('error sending request for url (https://html.duckduckgo.com/html/)', 'https://html.duckduckgo.com/html/'))
+2026-08-19 15:46:05,382 - ddgs.ddgs - INFO - Error in engine yahoo: TimeoutException(TimeoutError('error sending request for url (https://search.yahoo.com/search;_ylt=vMvkGkJHtec_2Xzh4rNKCre4;_ylu=NFh1GRsOWjMujP-CQER636Bb9lslfNq35Hj39KHJ3wt2NL4?p=Python)', 'https://search.yahoo.com/search;_ylt=vMvkGkJHtec_2Xzh4rNKCre4;_ylu=NFh1GRsOWjMujP-CQER636Bb9lslfNq35Hj39KHJ3wt2NL4?p=Python'))
+2026-08-19 15:46:06,840 - primp - INFO - response: https://yandex.com/search/site/?text=Python&web=1&searchid=5301397 200
+2026-08-19 15:46:07,306 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:46:07,315 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:46:07,319 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:46:07,326 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:46:07,328 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:46:07,352 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:46:07,360 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:46:07,364 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:46:07,370 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:46:07,373 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:46:07,385 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:46:07,391 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:46:07,396 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:46:07,402 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:46:07,402 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:46:07,411 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:46:07,414 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:46:07,416 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:46:07,418 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:46:07,421 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:46:07,431 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:46:07,435 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:46:07,437 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:46:07,442 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:46:07,443 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:46:07,483 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\search\tool.json
+2026-08-19 15:46:07,489 - terminal - INFO - [ToolRegistry] ✅ 工具注册: search
+2026-08-19 15:46:07,491 - terminal - INFO - [ToolRegistry] 发现 JSON 描述符: C:\Users\ASUS\Desktop\JohaChat\joha\tools\webpage\tool.json
+2026-08-19 15:46:07,495 - terminal - INFO - [ToolRegistry] ✅ 工具注册: webpage
+2026-08-19 15:46:07,495 - terminal - INFO - [ToolRegistry] 自动发现完成，共 2 个工具
+2026-08-19 15:46:07,499 - johalog - INFO - ToolRegistry 已加载 2 个工具
+2026-08-19 15:46:07,500 - johalog - INFO - 已初始化 0 个群组模式
+2026-08-19 15:46:07,515 - johalog - INFO - ToolRegistry 已加载 2 个工具
+2026-08-19 15:46:07,516 - johalog - INFO - 已初始化 0 个群组模式
+2026-08-19 15:46:07,519 - terminal - INFO - [AI] 请求中... | 用户u_svc_gen | 消息: test
+2026-08-19 15:46:07,519 - terminal - WARNING - [AI] 未生成回复，已跳过发送到群 | 用户u_svc_gen | 消息: test
+2026-08-19 15:46:07,519 - johalog - WARNING - [回复生成失败] 用户:u_svc_gen, 消息:test..., 已跳过群发送
+2026-08-19 15:46:07,524 - johalog - INFO - ToolRegistry 已加载 2 个工具
+2026-08-19 15:46:07,525 - johalog - INFO - 已初始化 0 个群组模式
+2026-08-19 15:46:07,529 - johalog - INFO - ToolRegistry 已加载 2 个工具
+2026-08-19 15:46:07,530 - johalog - INFO - 已初始化 0 个群组模式
+2026-08-19 15:46:07,560 - johalog - INFO - ToolRegistry 已加载 2 个工具
+2026-08-19 15:46:07,561 - johalog - INFO - 已初始化 0 个群组模式
+2026-08-19 15:46:07,609 - johalog - INFO - ToolRegistry 已加载 2 个工具
+2026-08-19 15:46:07,610 - johalog - INFO - 已初始化 0 个群组模式
+2026-08-19 15:46:07,611 - terminal - WARNING - [多模态] 模型  不支持图片，已跳过 1 张图片
+2026-08-19 15:46:07,611 - johalog - WARNING - 模型  不支持多模态，已跳过图片
+2026-08-19 15:46:07,626 - terminal - INFO - [消息队列] 已初始化，合并窗口: 1.0秒, 最大队列大小: 5, 最小合并数: 2
+2026-08-19 15:46:07,628 - terminal - INFO - [消息合并] 群g1 | 合并2条消息 (0.0秒) | 内容: a b
+2026-08-19 15:46:07,629 - johalog - INFO - [消息合并] 群:g1, 合并数:2, 时长:0.0s
+2026-08-19 15:46:07,638 - terminal - INFO - [消息队列] 已初始化，合并窗口: 60.0秒, 最大队列大小: 5, 最小合并数: 2
+2026-08-19 15:46:07,639 - terminal - INFO - [消息合并] 群g1 | 合并3条消息 (0.0秒) | 内容: m0 m1 m2
+2026-08-19 15:46:07,639 - johalog - INFO - [消息合并] 群:g1, 合并数:3, 时长:0.0s
+2026-08-19 15:46:07,641 - terminal - INFO - [消息合并] 群g1 | 合并1条消息 (0.0秒) | 内容: m3
+2026-08-19 15:46:07,641 - johalog - INFO - [消息合并] 群:g1, 合并数:1, 时长:0.0s
+2026-08-19 15:46:07,649 - terminal - INFO - [消息队列] 已初始化，合并窗口: 60.0秒, 最大队列大小: 5, 最小合并数: 2
+2026-08-19 15:46:07,652 - terminal - INFO - [消息合并] 群g1 | 合并2条消息 (0.0秒) | 内容: dup
+2026-08-19 15:46:07,652 - johalog - INFO - [消息合并] 群:g1, 合并数:2, 时长:0.0s
+2026-08-19 15:46:07,659 - terminal - INFO - [消息队列] 已初始化，合并窗口: 0.1秒, 最大队列大小: 5, 最小合并数: 2
+2026-08-19 15:46:07,860 - terminal - INFO - [消息合并] 群g1 | 合并2条消息 (0.2秒) | 内容: alone trigger
+2026-08-19 15:46:07,861 - johalog - INFO - [消息合并] 群:g1, 合并数:2, 时长:0.2s
+2026-08-19 15:46:23,140 - joha.managers.history_manager - INFO - 已清空用户 u_hist_clear 在群组 g_hist_clear 的历史记录

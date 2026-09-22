@@ -6,7 +6,7 @@ NapCat 适配层：连接、事件、API、配置管理
 from __future__ import annotations
 
 from joha.adapter.message_client import MessageClient
-from joha.adapter.config import Config, ConfigManager, config_manager, setup_logging, get_logger
+from joha.adapter.config import ConfigManager, config_manager, setup_logging, get_logger
 from joha.adapter.transport import NapCatClient
 from joha.adapter.protocol import (
     BotAPI,
@@ -47,7 +47,6 @@ __all__: list[str] = [
     "RequestEvent",
     "FriendRequestEvent",
     "GroupRequestEvent",
-    "Config",
     "ConfigManager",
     "config_manager",
     "setup_logging",

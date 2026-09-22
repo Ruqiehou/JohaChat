@@ -38,17 +38,20 @@ class UserProfile:
 
         score = 0.0
 
-        if self.total_interactions > 0:
+        if self.total_interactions <= 0:
+            score += 0.3
+        elif self.positive_feedbacks > 0:
             quality = self.positive_feedbacks / self.total_interactions
             score += (quality - 0.5) * 1.0
-        else:
-            score += 0.3
+        # 尚无好评时不额外扣质量分，避免新用户被 first-interaction 惩罚打穿
 
         gap = time.time() - self.last_interaction_ts
-        if gap < 10:
-            score -= 1.5
-        elif gap < 60:
-            score -= 0.5
+        # 仅对已有互动记录的用户做冷却式降权
+        if self.last_interaction_ts > 0:
+            if gap < 10:
+                score -= 1.5
+            elif gap < 60:
+                score -= 0.5
 
         return score
 

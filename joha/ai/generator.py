@@ -26,14 +26,28 @@ class Generator:
 
     def _init_client(self):
         """根据当前配置初始化或更新 AI 客户端"""
+        tool_calling_enabled = bool(config.get("tool_calling.enabled", True))
         self._client = OpenAICompatibleClient(
             api_key=config.llm_api_key,
             base_url=config.llm_base_url,
             model=config.llm_model,
-            enable_tools=False
+            enable_tools=tool_calling_enabled,
         )
         self._model = config.llm_model
         tprint("info", f"[Generator] 已加载 AI 客户端 | {config.get_active_provider_name() or '默认'} | 模型: {self._model}")
+
+        # 注册工具：统一来自 ToolRegistry，LLM 函数名即注册表规范名（search / webpage）
+        if tool_calling_enabled:
+            from joha.core.tool_registry import get_tool_registry
+            registry = get_tool_registry()
+            if not registry._initialized:
+                registry.auto_discover()
+            for tool_def in registry.list_tools_openai():
+                fn_name = tool_def["function"]["name"]
+                self._client.register_tool(
+                    tool_def,
+                    lambda args, name=fn_name: registry.call_tool(name, args),
+                )
 
     def switch_provider(self, name: str) -> bool:
         """切换 LLM Provider 并重建客户端
@@ -150,15 +164,32 @@ class Generator:
             tprint("error", f"[AI] 生成失败：{e}")
             return None
 
-    def chat_sync(self, messages: list, temperature=0.6, max_tokens=1024) -> Optional[str]:
-        """同步生成接口（用于工具调用等场景）"""
+    def chat_sync(self, messages: list, temperature=0.6, max_tokens=1024, enable_tools: bool = None) -> Optional[str]:
+        """同步生成接口（用于工具调用等场景）
+        
+        Args:
+            messages: 消息列表
+            temperature: 温度参数
+            max_tokens: 最大 token 数
+            enable_tools: 是否启用工具，None 表示使用默认配置
+        """
         try:
-            result = self._cached_chat(
-                self._model,
-                tuple(messages),
-                temperature,
-                max_tokens
-            )
+            # 临时保存原始工具状态
+            original_enable_tools = self._client.enable_tools
+            if enable_tools is not None:
+                self._client.enable_tools = enable_tools
+
+            try:
+                result = self._cached_chat(
+                    self._model,
+                    tuple(messages),
+                    temperature,
+                    max_tokens
+                )
+            finally:
+                if enable_tools is not None:
+                    self._client.enable_tools = original_enable_tools
+
             return result
         except Exception as e:
             self._error_count += 1

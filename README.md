@@ -99,7 +99,6 @@ python run.py
 | `websockets`    | >=12.0  | WebSocket 客户端（连接 NapCatQQ 消息平台） |
 | `openai`        | >=1.0.0 | LLM API 调用（兼容 OpenAI 协议）        |
 | `pyyaml`        | >=6.0   | YAML 配置解析                       |
-| `python-dotenv` | >=1.0.0 | 环境变量管理（可选）                      |
 | `watchdog`      | >=3.0.0 | 开发热重载（可选）                       |
 
 ***
@@ -271,7 +270,7 @@ logging:
 ```
 run.py                     ← 统一启动入口
   │
-  ├─ storage/              ← 运行时数据（自动创建）
+  ├─ johadata/             ← 运行时数据（自动创建）
   │    ├─ history/             — 聊天历史
   │    ├─ conversations/       — 群对话记忆
   │    ├─ memory/              — 群长期记忆
@@ -450,7 +449,7 @@ JohaChat/
 ├── README.md                # 本文件
 ├── CHANGELOG.md             # 更新日志
 │
-├── storage/                 # 运行时数据（自动创建）
+├── johadata/                # 运行时数据（自动创建）
 │
 ├── joha/                    # 核心代码包
 │   ├── adapter/            # NapCat 适配层（传输/协议/兼容导出）
@@ -465,7 +464,7 @@ JohaChat/
 └── docs/                    # 文档目录
 ```
 
-### 💾 存储目录 `storage/`
+### 💾 存储目录 `johadata/`
 
 | 文件                   | 说明             |
 | -------------------- | -------------- |
@@ -495,7 +494,7 @@ JohaChat/
 
 - 检查 NapCatQQ 是否正常运行且 WebSocket 端口开放
 
-- 查看日志文件 `storage/johalog/ai.log` 排查错误
+- 查看日志文件 `johadata/johalog/ai.log` 排查错误
 
 </details>
 

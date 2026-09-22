@@ -85,8 +85,8 @@ class MessageQueueManager:
         tprint("info", f"[消息队列] 已初始化，合并窗口: {self.merge_window}秒, 最大队列大小: {self.max_queue_size}, 最小合并数: {self.min_messages_to_merge}")
     
     def _get_queue_key(self, user_id: str, group_id: str) -> str:
-        """获取队列键（仅使用群组ID）"""
-        return str(group_id)
+        """获取队列键（使用群组和用户ID组合，避免多用户消息混淆）"""
+        return f"{group_id}:{user_id}"
     
     async def add_message(
         self,
@@ -115,11 +115,15 @@ class MessageQueueManager:
         """
         # 如果消息队列功能被禁用，直接返回合并消息（不等待）
         if not self.enabled:
+            text = (message or "").strip()
+            if not text and images:
+                text = "[图片]"
+            msgs = [text] if text else []
             return MergedMessage(
                 user_id=str(user_id),
                 group_id=str(group_id),
-                messages=[message.strip()] if message.strip() else [],
-                merged_text=message.strip(),
+                messages=msgs,
+                merged_text=text,
                 timestamp=time.time(),
                 last_timestamp=time.time(),
                 images=images or [],
@@ -225,8 +229,9 @@ class MessageQueueManager:
                 is_at_bot = True
             if msg.reply_to_bot:
                 reply_to_bot = True
-            if msg.is_pure_sticker_or_image:
-                is_pure_sticker = True
+        
+        # 只有当所有消息都是纯媒体时，合并结果才是纯媒体
+        is_pure_sticker = all(msg.is_pure_sticker_or_image for msg in queue) if queue else False
         
         # 如果没有文本消息但有图片，添加占位符
         if not messages and all_images:

@@ -36,11 +36,12 @@ class SearchTool:
             
             prompt = f"请对以下关于'{query}'的搜索结果进行简洁明了的总结:\n\n{content}\n\n总结:"
             
-            # 调用LLM进行总结
+            # 调用LLM进行总结，禁用工具避免递归调用
             summary = generator.chat_sync(
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
-                max_tokens=500
+                max_tokens=500,
+                enable_tools=False
             )
             
             return summary if summary else content

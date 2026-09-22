@@ -4,7 +4,7 @@
 双层记忆架构的「第一层」：按群维度存储完整对话流
 - 包含所有用户 + 机器人回复
 - 上下文连贯，AI 能感知群聊氛围
-- 按群分文件：storage/conversations/group_{group_id}.json
+- 按群分文件：johadata/conversations/group_{group_id}.json
 
 第二层（用户画像/风格学习）保持不变，继续由 history_manager 和 style_learner 管理
 """

@@ -129,23 +129,23 @@ logging:
 | `max_queue_size` | int | `5` | 最大队列长度，超出后直接触发决策 |
 | `min_messages_to_merge` | int | `2` | 最小合并消息数，至少 N 条消息才会因超时而处理 |
 
-### 3.4 意图识别 / 工具调用配置（可选）
+### 3.4 工具调用配置（可选）
 
 ```json
 {
-  "intent_recognition": {
-    "enabled": true,
-    "provider_name": "teatop",
-    "fallback_to_rules": true
-  },
   "tool_calling": {
-    "enabled": true,
-    "provider_name": "deepseek"
+    "enabled": true
   }
 }
 ```
 
-> 未配置时决策引擎自动回退到纯规则意图识别。
+| 字段 | 默认值 | 说明 |
+|------|--------|------|
+| `enabled` | `true` | 是否让主回复流程按需调用 `joha/tools/` 下自动发现的工具 |
+
+启用后，`Generator` 会把 `ToolRegistry` 中所有工具以 OpenAI function-calling schema 提供给模型（工具名使用注册表规范名，如 `search` / `webpage`）。设为 `false` 则完全不向模型暴露工具，仅保留 `/search`、`/webpage` 等斜杠命令。
+
+> **意图识别**：当前版本为**纯规则实现**（`joha/decision/reply_decision.py` 的 `_detect_intent()`，基于正则 + `reply_decision.json` 中的 `intent_pattern_multiplier` / `threshold_adjustments`），不依赖 LLM。历史版本配置中的 `intent_recognition` 段已移除。
 
 ---
 
@@ -287,23 +287,17 @@ logging:
 
 ---
 
-## 5. 环境变量
+## 5. 配置来源
 
-### 5.1 适配层环境变量
+Joha 的配置**全部来自文件**，不读取环境变量、不使用 `.env`：
 
-`joha/adapter/config.py` 会加载 `joha/adapter/.env` 文件（若存在），并支持系统环境变量：
+| 来源 | 文件 | 格式 | 内容 |
+|------|------|------|------|
+| 连接配置 | `joha/adapter/connection.yaml` | YAML | NapCat 连接、日志级别、调试/热重载开关 |
+| 主配置 | `joha/config/config.json` | JSON | LLM Provider、admin、消息队列、工具调用开关 |
+| 决策参数 | `joha/config/reply_decision.json` | JSON | 回复概率参数（支持热加载） |
 
-| 环境变量 | 说明 |
-|----------|------|
-| `NAPCAT_WS_URL` | NapCat WebSocket 地址 |
-| `NAPCAT_ACCESS_TOKEN` | WebSocket 鉴权 Token |
-| `LOG_LEVEL` | 日志级别 |
-| `LOG_DIR` | 日志目录 |
-| `BOT_DEBUG` | 调试模式（true/false） |
-
-### 5.2 主配置环境变量
-
-`joha/config/config_manager.py` 的 `ConfigManager` 已**停用** JSON 环境变量覆盖（`_load_env_overrides()` 为空实现），LLM 等配置一律从 `config.json` 读取。
+> 历史版本曾支持 `NAPCAT_WS_URL`、`NAPCAT_ACCESS_TOKEN`、`LOG_LEVEL`、`LOG_DIR`、`BOT_DEBUG` 等环境变量覆盖，以及 `joha/adapter/.env` 文件，现已移除。需要修改连接或日志参数请直接编辑 `connection.yaml`。
 
 ---
 

@@ -34,30 +34,6 @@
     "min": 0.15,
     "max": 0.85
   },
-  "blend": {
-    "same_intent_rule_weight": 0.55,
-    "same_intent_ai_weight": 0.45,
-    "same_intent_bonus": 0.05,
-    "rule_dominant_threshold": 0.8,
-    "ai_dominant_threshold": 0.8,
-    "disagree_rule_weight": 0.6,
-    "disagree_ai_weight": 0.4,
-    "min_confidence": 0.35,
-    "max_confidence": 0.95
-  },
-  "ai_intent_trigger": {
-    "high_confidence_min": 0.8,
-    "high_confidence_intents": [
-      "chat",
-      "question"
-    ],
-    "low_confidence_max": 0.45,
-    "medium_confidence_intents": [
-      "chat",
-      "question",
-      "emotion"
-    ]
-  },
   "group_dynamic": {
     "very_busy_mpm": 30,
     "very_busy_score": -0.8,

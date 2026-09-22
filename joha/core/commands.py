@@ -143,15 +143,19 @@ class CommandHandler:
         if cmd in ["/好评", "/good"]:
             from joha.decision.group_state import group_state_manager
             from joha.decision.reply_decision import apply_feedback
+            from joha.managers.user_profile import user_profile_manager
             group_state_manager.record_feedback(str(msg_group_id), positive=True)
             apply_feedback("chat", positive=True)
+            user_profile_manager.record_interaction(str(userid), positive=True)
             response = "✅ 已记录好评，谢谢你的反馈~"
 
         elif cmd in ["/差评", "/bad"]:
             from joha.decision.group_state import group_state_manager
             from joha.decision.reply_decision import apply_feedback
+            from joha.managers.user_profile import user_profile_manager
             group_state_manager.record_feedback(str(msg_group_id), positive=False)
             apply_feedback("chat", positive=False)
+            user_profile_manager.record_interaction(str(userid))
             response = "📝 已记录差评，我会努力改进的"
 
         elif cmd == "/群状态":
@@ -172,6 +176,36 @@ class CommandHandler:
                 f"距上次回复: {cd_stats['last_reply_seconds_ago']:.0f}秒\n"
                 f"━━━━━━━━━━━━━━"
             )
+
+        # ── 工具命令（所有人可用）──
+        elif cmd in ["/tools", "/工具列表"]:
+            from joha.core.tool_registry import tool_registry
+            if not tool_registry._initialized:
+                tool_registry.auto_discover()
+            tools_desc = tool_registry.get_help_text()
+            response = "🛠 可用工具：\n" + ("\n".join(tools_desc.split("\n")[1:]) if "\n" in tools_desc else tools_desc)
+
+        elif cmd in ["/search", "/s", "/web_search"]:
+            from joha.core.tool_registry import tool_registry
+            if not tool_registry._initialized:
+                tool_registry.auto_discover()
+            query = parts[1] if len(parts) >= 2 else ""
+            if not query:
+                response = "用法：/search <搜索关键词>"
+            else:
+                # 工具调用包含同步网络请求，放到线程池执行避免阻塞事件循环
+                response = await asyncio.to_thread(tool_registry.dispatch, "search", query)
+
+        elif cmd in ["/webpage", "/wp", "/fetch"]:
+            from joha.core.tool_registry import tool_registry
+            if not tool_registry._initialized:
+                tool_registry.auto_discover()
+            url = parts[1] if len(parts) >= 2 else ""
+            if not url:
+                response = "用法：/webpage <URL>"
+            else:
+                # 工具调用包含同步网络请求，放到线程池执行避免阻塞事件循环
+                response = await asyncio.to_thread(tool_registry.dispatch, "webpage", url)
 
         # 管理员专属命令
         if not is_admin(userid):
@@ -299,36 +333,6 @@ class CommandHandler:
             target_user = parts[1]
             style_learner.clear_user_style(target_user)
             response = f"已清除用户 {target_user} 的风格数据"
-
-        # ── 工具命令（所有人可用）──
-        elif cmd in ["/tools", "/工具列表"]:
-            from joha.core.tool_registry import tool_registry
-            if not tool_registry._initialized:
-                tool_registry.auto_discover()
-            tools_desc = tool_registry.get_help_text()
-            response = "🛠 可用工具：\n" + ("\n".join(tools_desc.split("\n")[1:]) if "\n" in tools_desc else tools_desc)
-        
-        elif cmd in ["/search", "/s", "/web_search"]:
-            from joha.core.tool_registry import tool_registry
-            if not tool_registry._initialized:
-                tool_registry.auto_discover()
-            query = parts[1] if len(parts) >= 2 else ""
-            if not query:
-                response = "用法：/search <搜索关键词>"
-            else:
-                # 工具调用包含同步网络请求，放到线程池执行避免阻塞事件循环
-                response = await asyncio.to_thread(tool_registry.dispatch, "search", query)
-
-        elif cmd in ["/webpage", "/wp", "/fetch"]:
-            from joha.core.tool_registry import tool_registry
-            if not tool_registry._initialized:
-                tool_registry.auto_discover()
-            url = parts[1] if len(parts) >= 2 else ""
-            if not url:
-                response = "用法：/webpage <URL>"
-            else:
-                # 工具调用包含同步网络请求，放到线程池执行避免阻塞事件循环
-                response = await asyncio.to_thread(tool_registry.dispatch, "webpage", url)
 
         # ── 多人设管理 ──
         elif cmd in ["/人设列表", "/personas"]:

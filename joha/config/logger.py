@@ -74,7 +74,7 @@ def get_logger(name: str) -> logging.Logger:
     return setup_logger(name)
 
 
-# 预定义的日志记录器 - 全部放项目根 storage/johalog
+# 预定义的日志记录器 - 全部放项目根 johadata/johalog
 from joha.config.paths import JOHALOG_DIR as JOHA_LOG_DIR
 
 johalog_logger = setup_logger("johalog", log_dir=JOHA_LOG_DIR)

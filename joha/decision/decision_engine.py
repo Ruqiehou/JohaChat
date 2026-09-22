@@ -79,6 +79,7 @@ class DecisionEngine:
             is_at_bot=is_at_bot,
             reply_to_bot=reply_to_bot,
             is_pure_media=is_pure_media,
+            is_private=is_private,
         )
 
         prob = compute_reply_prob(ctx, self.cooldown)
@@ -86,7 +87,7 @@ class DecisionEngine:
         result.intent = ctx.intent
         result.intent_confidence = ctx.intent_confidence
 
-        decision = should_reply(ctx, self.cooldown)
+        decision = should_reply(ctx, self.cooldown, prob=prob)
         result.should_reply = decision
 
         self._log_decision(result, ctx)

@@ -18,7 +18,7 @@ from urllib.parse import urlparse
 import websockets
 from websockets.exceptions import ConnectionClosed
 
-from joha.adapter.config import Config, setup_logging
+from joha.adapter.config import config_manager, setup_logging
 from joha.adapter.transport.interfaces import IClient, IConnectionEventListener
 
 # 设置日志系统
@@ -50,8 +50,10 @@ class NapCatClient(IClient):
         ws_url: Optional[str] = None,
         access_token: Optional[str] = None,
     ) -> None:
-        self.ws_url: str = self._normalize_ws_url(ws_url or Config.NAPCAT_WS_URL)
-        self.access_token: str = access_token or Config.NAPCAT_ACCESS_TOKEN
+        self.ws_url: str = self._normalize_ws_url(
+            ws_url or config_manager.get("napcat.ws_url", "ws://127.0.0.1:3002")
+        )
+        self.access_token: str = access_token or config_manager.get("napcat.access_token", "")
         self.ws: Optional[websockets.WebSocketClientProtocol] = None
         self._connected: bool = False
         self.echo_map: Dict[str, asyncio.Future[Any]] = {}

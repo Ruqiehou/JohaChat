@@ -27,7 +27,7 @@ _SUBDIRS = [HISTORY_DIR, STYLES_DIR, PERSONAS_DIR, JOHALOG_DIR, CONVERSATIONS_DI
 
 
 def ensure_storage_dirs() -> None:
-    """运行时自动创建 storage 及其子目录"""
+    """运行时自动创建 johadata 及其子目录"""
     os.makedirs(STORAGE_ROOT, exist_ok=True)
     for d in _SUBDIRS:
         os.makedirs(d, exist_ok=True)

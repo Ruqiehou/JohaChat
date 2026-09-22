@@ -22,17 +22,19 @@ APP_CONFIG_FILE = ROOT_DIR / "joha" / "config" / "config.json"
 RUN_FILE = ROOT_DIR / "run.py"
 
 REQUIRED_DIRS = [
-    ROOT_DIR / "storage",
-    ROOT_DIR / "storage" / "history",
-    ROOT_DIR / "storage" / "styles",
-    ROOT_DIR / "storage" / "johalog",
+    ROOT_DIR / "johadata",
+    ROOT_DIR / "johadata" / "history",
+    ROOT_DIR / "johadata" / "styles",
+    ROOT_DIR / "johadata" / "personas",
+    ROOT_DIR / "johadata" / "johalog",
+    ROOT_DIR / "johadata" / "conversations",
+    ROOT_DIR / "johadata" / "memory",
 ]
 
 REQUIRED_IMPORTS = {
     "openai": "openai",
     "yaml": "pyyaml",
     "websockets": "websockets",
-    "dotenv": "python-dotenv",
     "watchdog": "watchdog",
 }
 
@@ -302,7 +304,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Joha 项目配置检查与启动步骤助手")
     parser.add_argument("--check", action="store_true", help="检查当前配置")
     parser.add_argument("--steps", action="store_true", help="显示 step by step 操作步骤")
-    parser.add_argument("--fix", action="store_true", help="创建缺失的基础 storage 目录")
+    parser.add_argument("--fix", action="store_true", help="创建缺失的基础 johadata 目录")
     args = parser.parse_args()
 
     do_check = args.check or not args.steps

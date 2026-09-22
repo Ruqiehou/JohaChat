@@ -12,7 +12,7 @@
 
 ### 功能更新（2026-06 之后累积）
 
-- **群聊双层记忆**: 新增 `managers/group_conversation.py`（短时群对话记忆，`storage/conversations/`）与 `managers/group_memory.py`（长期记忆，`storage/memory/`）
+- **群聊双层记忆**: 新增 `managers/group_conversation.py`（短时群对话记忆，`johadata/conversations/`）与 `managers/group_memory.py`（长期记忆，`johadata/memory/`）
 - **消息队列增强**: 过期消息定期清理（`message_queue_manager.process_expired()`）
 - **多模态与存储**: 优化图片处理，存储操作增加线程安全保护
 - **决策层重构**: 合并 `reply_config` 职责到 `reply_decision`；意图识别改为纯规则分类；决策引擎 `process()` 统一入口（`EngineResult` 输出）
@@ -117,7 +117,7 @@
 - `add_message()` 不再需要传入回复内容
 
 #### 数据目录外提
-- `joha/storage/` 提升到项目根目录 `storage/`
+- `joha/storage/` 提升到项目根目录 `storage/`（后续版本更名为 `johadata/`，见架构文档）
 - 新增 `joha/config/paths.py` 集中定义所有存储路径
 - 运行时通过 `ensure_storage_dirs()` 自动创建目录，无需手动初始化
 

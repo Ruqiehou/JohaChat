@@ -13,23 +13,9 @@
       }
     ]
   },
-  "intent_recognition": {
-    "enabled": true,
-    "provider_name": "teatop",
-    "fallback_to_rules": true,
-    "min_confidence": 0.3,
-    "_available_configs": {
-      "alibaba": {
-        "api_key": "YOUR_API_KEY_HERE",
-        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "model": "qwen3.5-omni-flash-2026-03-15"
-      }
-    }
-  },
   "tool_calling": {
     "enabled": true,
-    "provider_name": "deepseek",
-    "description": "用于自然语言指令解析和工具调用的专用模型配置"
+    "description": "工具调用开关：启用后主回复流程可按需调用 joha/tools 下自动发现的工具"
   },
   "admin": {
     "admins": [

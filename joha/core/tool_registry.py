@@ -277,8 +277,8 @@ class ToolRegistry:
         Returns:
             工具执行结果，或 None 表示未找到工具
         """
-        raw_cmd = cmd.lstrip("/").strip().lower()
-        tool_name = self._aliases.get(raw_cmd) or raw_cmd
+        raw = cmd.lstrip("/").strip().lower()
+        tool_name = self._aliases.get(raw) or raw
         tool = self._tools.get(tool_name)
 
         if not tool:
@@ -292,23 +292,54 @@ class ToolRegistry:
             if not params:
                 result = execute_fn()
             elif len(params) == 1:
-                result = execute_fn(args.strip())
+                # 单参数工具：整个字符串作为第一个参数
+                first_param = next(iter(params.keys()))
+                result = execute_fn(**{first_param: args.strip()})
             else:
-                arg_parts = args.strip().split(None, len(params) - 1)
+                # 多参数工具：智能解析
                 kwargs = {}
-                for i, (pname, pinfo) in enumerate(params.items()):
-                    if i < len(arg_parts):
+                arg_parts = args.strip().split(None, len(params) - 1)
+                
+                # 获取参数列表
+                param_list = list(params.items())
+                
+                # 如果参数数量少于参数定义数量，说明最后一个参数包含空格
+                if len(arg_parts) < len(param_list):
+                    # 前面的参数按空格分割
+                    for i in range(len(arg_parts) - 1):
+                        pname, pinfo = param_list[i]
                         val = arg_parts[i]
                         if pinfo.get("type") == "int":
                             try:
                                 val = int(val)
                             except ValueError:
-                                pass
+                                val = pinfo.get("default", "")
                         kwargs[pname] = val
-                    elif pinfo.get("required", False):
-                        kwargs[pname] = ""
-                    elif "default" in pinfo:
-                        kwargs[pname] = pinfo["default"]
+                    
+                    # 最后一个参数包含剩余的所有内容
+                    if len(arg_parts) > 0:
+                        last_pname, last_pinfo = param_list[len(arg_parts) - 1]
+                        # 从原始 args 中提取最后一个参数的完整内容
+                        remaining_start = args.strip()
+                        for i in range(len(arg_parts) - 1):
+                            remaining_start = remaining_start[len(arg_parts[i]):].lstrip()
+                        kwargs[last_pname] = remaining_start
+                else:
+                    # 参数数量匹配，按正常方式处理
+                    for i, (pname, pinfo) in enumerate(param_list):
+                        if i < len(arg_parts):
+                            val = arg_parts[i]
+                            if pinfo.get("type") == "int":
+                                try:
+                                    val = int(val)
+                                except ValueError:
+                                    val = pinfo.get("default", "")
+                            kwargs[pname] = val
+                        elif pinfo.get("required", False):
+                            kwargs[pname] = ""
+                        elif "default" in pinfo:
+                            kwargs[pname] = pinfo["default"]
+                
                 result = execute_fn(**kwargs)
 
             return str(result) if result is not None else ""
@@ -339,7 +370,7 @@ class ToolRegistry:
         if not self._tools:
             return ""
 
-        lines = ["\n【可用工具】你可以通过以下命令调用工具："]
+        lines = ["\n【可用工具】你可以直接调用以下工具（无需用户许可）："]
         for name, tool in sorted(self._tools.items()):
             meta = tool["meta"]
             desc = meta.get("description", "")
@@ -353,14 +384,14 @@ class ToolRegistry:
             )
 
             alias_str = f" (别名: {'/'.join(aliases)})" if aliases else ""
-            lines.append(f"  /{name} {param_desc}{alias_str}")
+            lines.append(f"  {name} {param_desc}{alias_str}")
             lines.append(f"    用途: {desc}")
 
             if examples:
                 ex = examples[0]
                 lines.append(f"    示例: {ex}")
 
-        lines.append("使用方式: 输入 /工具名 参数")
+        lines.append("需要实时信息或网页内容时请直接调用工具，不要仅凭记忆回答。")
         return "\n".join(lines)
 
     def get_help_text(self) -> str:
@@ -444,6 +475,40 @@ class ToolRegistry:
                 },
             })
 
+        return tools
+
+    # ----------------------------------------------------------------
+    # OpenAI function-calling 兼容：输出 LLM 函数调用 schema
+    # ----------------------------------------------------------------
+
+    def list_tools_openai(self) -> List[dict]:
+        """以 OpenAI function-calling 格式输出所有已注册工具
+
+        与 `list_tools()` 的区别：此处把 MCP 风格 (`arguments`) 转换为
+        OpenAI 要求的 `parameters` 结构，并包裹为
+        `{"type": "function", "function": {...}}`，可直接传给
+        `OpenAICompatibleClient.register_tool()`。
+
+        工具名统一使用注册表中的规范名（如 search / webpage），
+        别名（s / wp / web_search / fetch）仅供斜杠命令，不暴露给 LLM。
+        """
+        tools = []
+        for entry in self.list_tools():
+            arguments = entry.get("arguments", {})
+            properties = arguments.get("properties", {})
+            required = arguments.get("required", [])
+            tools.append({
+                "type": "function",
+                "function": {
+                    "name": entry["name"],
+                    "description": entry.get("description", ""),
+                    "parameters": {
+                        "type": "object",
+                        "properties": properties,
+                        "required": required,
+                    },
+                },
+            })
         return tools
 
 
