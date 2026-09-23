@@ -52,18 +52,24 @@ async def process_merged_message(merged_msg: MergedMessage, bot_api) -> Optional
             # 检测工具返回中是否包含截图路径
             screenshot_match = re.search(r'📁\s*(.+\.png)', response)
 
+            # 捕获发送结果以提取 message_id，用于后续 reply_to_bot 快速判定
             if screenshot_match:
                 screenshot_path = screenshot_match.group(1).strip()
-                await bot_api.send_group_message(
+                send_result = await bot_api.send_group_message(
                     group_id=int(group_id),
                     message=response,
                     image_path=screenshot_path,
                 )
             else:
-                await bot_api.send_group_message(group_id=group_id, message=response)
+                send_result = await bot_api.send_group_message(group_id=group_id, message=response)
+
+            # 提取消息 ID 并注册到群组状态，供 reply_to_bot 本地快速判定
+            sent_msg_id = 0
+            if isinstance(send_result, dict):
+                sent_msg_id = send_result.get("message_id", 0)
 
             # 记录机器人回复到群组状态
-            group_state_manager.record_bot_reply(group_id=group_id, text=response)
+            group_state_manager.record_bot_reply(group_id=group_id, text=response, msg_id=sent_msg_id)
         except Exception as e:
             tprint("error", f"发送消息失败: {e}")
 
@@ -130,17 +136,21 @@ class MessageHandler:
             is_at_bot = runtime_context.bot_uin in event.at_user_ids
 
         # 检查是否回复机器人消息
-        # 使用 SDK 的 get_message API 查询被回复消息的发送者
+        # 优先查本地 recent_bot_msg_ids（O(1) 集合查找，零 API 开销）；
+        # 仅当本地未命中时才回退到 get_message API
         if event.reply_message_id is not None:
-            try:
-                reply_data = await bot_api.get_message(event.reply_message_id)
-                if isinstance(reply_data, dict):
-                    reply_sender = reply_data.get("sender", {}) or reply_data.get("data", {}).get("sender", {})
-                    reply_user_id = reply_sender.get("user_id", 0)
-                    if int(reply_user_id) == runtime_context.bot_uin:
-                        reply_to_bot = True
-            except Exception:
-                pass
+            if group_state_manager.is_bot_message(group_id, event.reply_message_id):
+                reply_to_bot = True
+            else:
+                try:
+                    reply_data = await bot_api.get_message(event.reply_message_id)
+                    if isinstance(reply_data, dict):
+                        reply_sender = reply_data.get("sender", {}) or reply_data.get("data", {}).get("sender", {})
+                        reply_user_id = reply_sender.get("user_id", 0)
+                        if int(reply_user_id) == runtime_context.bot_uin:
+                            reply_to_bot = True
+                except Exception:
+                    pass
 
         # 5. 使用消息队列处理（智能合并）
         merged_msg = await message_queue_manager.add_message(

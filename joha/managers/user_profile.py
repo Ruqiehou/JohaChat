@@ -45,13 +45,8 @@ class UserProfile:
             score += (quality - 0.5) * 1.0
         # 尚无好评时不额外扣质量分，避免新用户被 first-interaction 惩罚打穿
 
-        gap = time.time() - self.last_interaction_ts
-        # 仅对已有互动记录的用户做冷却式降权
-        if self.last_interaction_ts > 0:
-            if gap < 10:
-                score -= 1.5
-            elif gap < 60:
-                score -= 0.5
+        # 注意：短期冷却降权由 CooldownManager.get_cooldown_penalty 统一负责，
+        # 此处只体现长期用户信誉（好评率/拉黑/VIP），不再叠加时间间隔惩罚，避免重复降权。
 
         return score
 

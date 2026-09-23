@@ -132,8 +132,12 @@ class Generator:
         return config.get_active_provider_name() or "默认"
 
     @cache_result(response_cache, ttl=60)
-    def _cached_chat(self, model: str, messages: tuple, temperature: float, max_tokens: int) -> str:
-        """缓存的聊天调用"""
+    def _cached_chat(self, model: str, messages: tuple, temperature: float, max_tokens: int,
+                     enable_tools: bool = True) -> str:
+        """缓存的聊天调用
+
+        enable_tools 参与缓存键，避免启用/禁用工具的结果互相污染
+        """
         try:
             result = self._client.call_with_context(
                 messages=list(messages),
@@ -155,7 +159,8 @@ class Generator:
                 self._model,
                 tuple(messages),
                 temperature,
-                max_tokens
+                max_tokens,
+                bool(self._client.enable_tools)
             )
             return result
         except Exception as e:
@@ -176,6 +181,7 @@ class Generator:
         try:
             # 临时保存原始工具状态
             original_enable_tools = self._client.enable_tools
+            effective_enable_tools = original_enable_tools if enable_tools is None else enable_tools
             if enable_tools is not None:
                 self._client.enable_tools = enable_tools
 
@@ -184,7 +190,8 @@ class Generator:
                     self._model,
                     tuple(messages),
                     temperature,
-                    max_tokens
+                    max_tokens,
+                    bool(effective_enable_tools)
                 )
             finally:
                 if enable_tools is not None:

@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 
 from joha.ai.generator import generator
 from joha.core.message_builder import message_builder
+from joha.core.response_postprocessor import post_processor
 from joha.core.tool_registry import get_tool_registry, tool_registry
 from joha.managers.history_manager import history_manager
 from joha.managers.style_learner import style_learner
@@ -227,11 +228,18 @@ class MessageService:
         try:
             # 加载历史时排除当前消息（已在 _learn_stage 中写入）
             history = history_manager.load_history(ctx.user_id, group_id=ctx.group_id)
-            # 从历史中移除当前消息，避免重复注入
+            # add_message 会将含 \n 的合并消息拆分为多条记录，
+            # 因此需从历史尾部移除当前消息对应的所有行，避免重复注入
             current_msg = ctx.merged_text or ctx.message
-            if history and history[-1].get("message") == current_msg:
-                history = history[:-1]
-            
+            current_lines = [line.strip() for line in current_msg.split("\n") if line.strip()]
+            if current_lines and len(history) >= len(current_lines):
+                tail = history[-len(current_lines):]
+                if all(
+                    isinstance(h, dict) and h.get("message") == line
+                    for h, line in zip(tail, current_lines)
+                ):
+                    history = history[:-len(current_lines)]
+
             ctx.context_messages = message_builder.build(
                 user_id=ctx.user_id,
                 message=current_msg,
@@ -268,6 +276,17 @@ class MessageService:
             johalog_logger.warning(
                 f"[回复生成失败] 用户:{ctx.user_id}, 消息:{log_msg[:20]}..., 已跳过群发送"
             )
+            return False
+
+        # 后处理：人设过滤、元认知清洗、其他人格拦截
+        try:
+            response = post_processor.process(response)
+        except Exception as pp_err:
+            johalog_logger.error(f"回复后处理失败：{pp_err}")
+
+        if not response:
+            self.failed_replies += 1
+            tprint("warning", f"[AI] 后处理后无有效回复，已跳过发送到群 | 用户{ctx.user_id}")
             return False
 
         tprint("info", f"[AI] 回复: {response}")

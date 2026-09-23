@@ -79,16 +79,13 @@
     "command": "command",
     "emotion": "emotion",
     "chat": "topic_relevance",
-    "spam": "spam_penalty",
-    "programming": "question"
+    "spam": "spam_penalty"
   },
   "threshold_adjustments": {
     "approval_high_delta": -0.05,
     "approval_low_delta": 0.05,
     "question_delta": -0.05,
-    "spam_delta": 0.2,
-    "programming_delta": -0.1,
-    "programming_extra_weight": 1.2
+    "spam_delta": 0.2
   },
   "busy_threshold_mpm": 25,
   "quiet_threshold_mpm": 2

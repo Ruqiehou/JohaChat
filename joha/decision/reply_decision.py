@@ -345,8 +345,6 @@ def _get_threshold(ctx: MessageContext) -> float:
         base += ta["question_delta"]
     elif ctx.intent == "spam":
         base += ta["spam_delta"]
-    elif ctx.intent == "programming":
-        base += ta["programming_delta"]
 
     return max(th.get("min", 0.15), min(th.get("max", 0.85), base))
 

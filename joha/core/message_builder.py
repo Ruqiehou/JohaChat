@@ -56,11 +56,10 @@ class MessageBuilder:
             if style_prompt:
                 system_prompt += "\n\n" + style_prompt
 
-        # 注入工具描述（如果 ToolRegistry 已初始化且有工具）
-        if self.tool_registry:
-            tool_desc = self.tool_registry.get_tool_descriptions()
-            if tool_desc:
-                system_prompt += "\n\n" + tool_desc
+        # 工具调用说明：具体工具的名称/参数/用途由 function-calling schema 提供，
+        # 此处只补充"何时该用工具"的行为引导，避免与 schema 重复描述
+        if self.tool_registry and self.tool_registry.get_tool_names():
+            system_prompt += "\n\n【可用工具】需要实时信息或网页内容时请直接调用工具，不要仅凭记忆回答。"
 
         context_messages = [{"role": "system", "content": system_prompt}]
 
@@ -70,19 +69,23 @@ class MessageBuilder:
             if memory_block:
                 context_messages.insert(1, {"role": "system", "content": memory_block})
 
-        # 第一层：群对话记忆
+        # 第一层：群对话记忆（已包含各用户发言 + 机器人回复的完整对话流）
+        has_group_context = False
         if group_id:
             conv_context = group_conversation.get_context(str(group_id), limit=history_limit)
-            context_messages.extend(conv_context)
+            if conv_context:
+                context_messages.extend(conv_context)
+                has_group_context = True
 
-        # 第三层：用户历史
-        if history is None:
-            history = history_manager.load_history(user_id, group_id=group_id)
-        if isinstance(history, list):
-            for h in history[-history_limit:]:
-                if isinstance(h, dict):
-                    if h.get("message"):
-                        context_messages.append({"role": "user", "content": h["message"]})
+        # 第三层：用户历史（仅在无群对话记忆时补充，避免与第一层重复注入）
+        if not has_group_context:
+            if history is None:
+                history = history_manager.load_history(user_id, group_id=group_id)
+            if isinstance(history, list):
+                for h in history[-history_limit:]:
+                    if isinstance(h, dict):
+                        if h.get("message"):
+                            context_messages.append({"role": "user", "content": h["message"]})
 
         # 当前消息
         if images:

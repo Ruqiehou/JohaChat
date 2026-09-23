@@ -21,6 +21,7 @@ class GroupState:
     group_id: str
     message_buffer: deque = field(default_factory=lambda: deque(maxlen=100))
     bot_reply_buffer: deque = field(default_factory=lambda: deque(maxlen=50))
+    recent_bot_msg_ids: set = field(default_factory=set)  # 最近机器人发送的消息 ID，用于快速判断 reply_to_bot
     user_message_counts: Dict[str, int] = field(default_factory=dict)
     last_bot_msg: str = ""
     last_msg_from_bot: bool = False
@@ -219,8 +220,20 @@ class GroupStateManager:
         if state._db_sync_count % 20 == 0:
             self._save_to_file()
 
-    def record_bot_reply(self, group_id: str, text: str):
+    def record_bot_reply(self, group_id: str, text: str, msg_id: int = 0):
         self.record_message(group_id, "bot", text, is_bot=True)
+        if msg_id:
+            state = self.get(group_id)
+            state.recent_bot_msg_ids.add(msg_id)
+            # 只保留最近 100 条，避免无限增长
+            if len(state.recent_bot_msg_ids) > 100:
+                # 无法精确淘汰最旧的，直接清空重建（极端情况）
+                state.recent_bot_msg_ids = {msg_id}
+
+    def is_bot_message(self, group_id: str, msg_id: int) -> bool:
+        """快速判断某条消息是否是机器人发送的（基于本地缓存）"""
+        state = self.get(group_id)
+        return msg_id in state.recent_bot_msg_ids
 
     def record_feedback(self, group_id: str, positive: bool = True):
         self.get(group_id).record_feedback(positive)
