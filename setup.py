@@ -25,10 +25,10 @@ REQUIRED_DIRS = [
     ROOT_DIR / "johadata",
     ROOT_DIR / "johadata" / "history",
     ROOT_DIR / "johadata" / "styles",
-    ROOT_DIR / "johadata" / "personas",
     ROOT_DIR / "johadata" / "johalog",
     ROOT_DIR / "johadata" / "conversations",
     ROOT_DIR / "johadata" / "memory",
+    ROOT_DIR / "joha" / "config" / "personas",
 ]
 
 REQUIRED_IMPORTS = {

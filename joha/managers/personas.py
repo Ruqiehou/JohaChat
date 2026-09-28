@@ -5,6 +5,7 @@
 import json
 import os
 import re
+import shutil
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from joha.config.cache import LRUCache
@@ -12,9 +13,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from joha.config.paths import PERSONAS_DIR as _PERSONAS_DIR, STORAGE_ROOT
+from joha.config.paths import (
+    PERSONAS_DIR as _PERSONAS_DIR,
+    LEGACY_PERSONAS_DIR as _LEGACY_PERSONAS_DIR,
+    STORAGE_ROOT,
+)
 
+# 多人设目录（joha/config/personas/）
 PERSONAS_DIR = _PERSONAS_DIR
+# 旧版人设目录（johadata/personas/），用于迁移历史数据
+LEGACY_PERSONAS_DIR = _LEGACY_PERSONAS_DIR
 REGISTRY_FILE = os.path.join(PERSONAS_DIR, "personas.json")
 RENSHE_FILE_LEGACY = os.path.join(STORAGE_ROOT, "renshe.txt")
 CACHE_TTL = 600
@@ -232,7 +240,34 @@ class PersonaManager:
             use_emoji=False, use_slang=True, use_particles=True,
             typo_tolerance=True, sentence_length="short", mood_bias="neutral"
         )
+        self._migrate_legacy()
         self._load_registry()
+
+    def _migrate_legacy(self) -> None:
+        """新目录缺少注册表时，从旧的 johadata/personas/ 迁移历史人设文件"""
+        if os.path.exists(self.registry_file) or not os.path.isdir(LEGACY_PERSONAS_DIR):
+            return
+        legacy_registry = os.path.join(LEGACY_PERSONAS_DIR, "personas.json")
+        candidates = [
+            f for f in os.listdir(LEGACY_PERSONAS_DIR)
+            if f == "personas.json" or f.endswith(".txt")
+        ]
+        if not candidates and not os.path.exists(legacy_registry):
+            return
+        os.makedirs(PERSONAS_DIR, exist_ok=True)
+        migrated = []
+        for filename in candidates:
+            src = os.path.join(LEGACY_PERSONAS_DIR, filename)
+            dst = os.path.join(PERSONAS_DIR, filename)
+            if not os.path.isfile(src) or os.path.exists(dst):
+                continue
+            try:
+                shutil.move(src, dst)
+                migrated.append(filename)
+            except Exception as e:
+                logger.warning(f"迁移旧人设文件 {filename} 失败: {e}")
+        if migrated:
+            logger.info(f"已迁移旧版人设目录 {LEGACY_PERSONAS_DIR} -> {PERSONAS_DIR}: {', '.join(migrated)}")
 
     def _registry_path(self) -> str:
         """确保 personas/ 目录存在"""
@@ -291,11 +326,12 @@ class PersonaManager:
             self._save_registry()
 
     def _load_persona_file(self, filename: str) -> str:
-        """从 personas/{filename} 加载人设文本，失败时回退到 renshe.txt"""
-        path = os.path.join(PERSONAS_DIR, filename)
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                return f.read().strip()
+        """从 personas/{filename} 加载人设文本，依次回退到旧目录与 renshe.txt"""
+        for directory in (PERSONAS_DIR, LEGACY_PERSONAS_DIR):
+            path = os.path.join(directory, filename)
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    return f.read().strip()
         if os.path.exists(RENSHE_FILE_LEGACY):
             with open(RENSHE_FILE_LEGACY, "r", encoding="utf-8") as f:
                 return f.read().strip()

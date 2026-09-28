@@ -4,8 +4,8 @@ from .group_mode_config import group_mode_config, GroupModeConfig
 from .logger import johalog_logger, ai_logger, setup_logger, tprint
 from .cache import LRUCache, persona_cache, history_cache, response_cache, cache_result
 from .paths import (
-    PROJECT_ROOT, STORAGE_ROOT,
-    HISTORY_DIR, STYLES_DIR, PERSONAS_DIR, JOHALOG_DIR,
+    PROJECT_ROOT, STORAGE_ROOT, CONFIG_DIR,
+    HISTORY_DIR, STYLES_DIR, PERSONAS_DIR, LEGACY_PERSONAS_DIR, JOHALOG_DIR,
     GROUP_STATES_FILE, GROUP_MODES_FILE, COOLDOWN_FILE, USER_PROFILES_FILE,
     ensure_storage_dirs,
 )
@@ -26,9 +26,11 @@ __all__ = [
     'cache_result',
     'PROJECT_ROOT',
     'STORAGE_ROOT',
+    'CONFIG_DIR',
     'HISTORY_DIR',
     'STYLES_DIR',
     'PERSONAS_DIR',
+    'LEGACY_PERSONAS_DIR',
     'JOHALOG_DIR',
     'GROUP_STATES_FILE',
     'GROUP_MODES_FILE',

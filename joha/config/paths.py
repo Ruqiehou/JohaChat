@@ -10,10 +10,16 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 # 数据存储根目录（项目根目录下 johadata/）
 STORAGE_ROOT = os.path.join(PROJECT_ROOT, "johadata")
 
+# 配置目录（joha/config/）
+CONFIG_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # 各子目录
 HISTORY_DIR = os.path.join(STORAGE_ROOT, "history")
 STYLES_DIR = os.path.join(STORAGE_ROOT, "styles")
-PERSONAS_DIR = os.path.join(STORAGE_ROOT, "personas")
+# 人设目录：配置下的多人设目录（personas.json + 各人设 .txt）
+PERSONAS_DIR = os.path.join(CONFIG_DIR, "personas")
+# 旧版人设目录（johadata/personas/），仅用于兼容历史数据
+LEGACY_PERSONAS_DIR = os.path.join(STORAGE_ROOT, "personas")
 JOHALOG_DIR = os.path.join(STORAGE_ROOT, "johalog")
 CONVERSATIONS_DIR = os.path.join(STORAGE_ROOT, "conversations")
 MEMORY_DIR = os.path.join(STORAGE_ROOT, "memory")
