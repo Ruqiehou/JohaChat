@@ -198,7 +198,7 @@ Joha 的核心大脑，决定是否回复消息。
 
 ### personas.py
 - **职责**: 多维度人设参数管理、多人设增删改查、群绑定
-- **存储**: `johadata/personas/`
+- **存储**: `joha/config/personas/`（旧版 `johadata/personas/` 首次启动自动迁移）
 
 ### style_learner.py
 - **职责**: 自动学习群成员说话风格

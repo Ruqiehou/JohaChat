@@ -210,6 +210,7 @@ johadata/
 ├── conversations/          # 群对话记忆（按群分文件）
 ├── memory/                 # 群长期记忆（按群分文件）
 ├── styles/                 # 风格学习数据
-├── personas/               # 人设数据
 └── johalog/                # 运行日志文件
 ```
+
+人设数据不在 `johadata/` 下，而在 `joha/config/personas/`（personas.json + 各人设 .txt）。

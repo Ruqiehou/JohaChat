@@ -8,6 +8,7 @@
 | 主配置 | `joha/config/config.json` | LLM Provider、admin、消息队列等 | 是 |
 | 回复决策配置 | `joha/config/reply_decision.json` | 回复概率参数（支持热加载） | 是 |
 | 配置示例 | `joha/config/config.example.json` | 主配置模板 | 否 |
+| 人设目录 | `joha/config/personas/` | 多人设注册表 `personas.json` 与各人设 `.txt` 文本 | 否（自动创建） |
 
 > **首次使用**: 复制示例配置文件并修改。
 

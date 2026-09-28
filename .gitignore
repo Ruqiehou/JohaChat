@@ -44,6 +44,9 @@ joha/config/config.json
 api_config.json
 .env
 
+# 人设数据（运行时数据，personas.json 含群绑定/活跃状态）
+joha/config/personas/
+
 # 测试与工具缓存
 .pytest_cache/
 .zcode/

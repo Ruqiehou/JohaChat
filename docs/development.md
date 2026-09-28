@@ -49,7 +49,6 @@ JohaChat/
 │   ├── conversations/              # 群对话记忆
 │   ├── memory/                     # 群长期记忆
 │   ├── styles/                     # 风格学习
-│   ├── personas/                   # 人设数据
 │   └── johalog/                    # 运行日志
 │
 ├── joha/                           # 核心代码包
@@ -60,6 +59,7 @@ JohaChat/
 │   ├── managers/                   # 数据管理层
 │   ├── tools/                      # 工具层
 │   └── config/                     # 配置与基础设施（扁平）
+│       └── personas/               # 多人设目录（personas.json + 各人设 .txt）
 │
 ├── tests/                          # 单元测试
 ├── docs/                           # 文档目录

@@ -210,7 +210,7 @@ from joha.adapter import MessageClient
 | 路径 | 内容 | 重要程度 |
 |------|------|----------|
 | `johadata/styles/` | 风格学习数据 | 高 |
-| `johadata/personas/` | 人设数据 | 高 |
+| `joha/config/personas/` | 人设数据 | 高 |
 | `johadata/history/` | 聊天历史 | 中 |
 | `johadata/conversations/` | 群对话记忆 | 中 |
 | `johadata/memory/` | 群长期记忆 | 中 |
@@ -228,7 +228,7 @@ BACKUP_DIR="./backups/$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
 cp -r johadata/styles "$BACKUP_DIR/"
-cp -r johadata/personas "$BACKUP_DIR/"
+cp -r joha/config/personas "$BACKUP_DIR/"
 cp -r johadata/history "$BACKUP_DIR/"
 cp -r johadata/conversations "$BACKUP_DIR/"
 cp -r johadata/memory "$BACKUP_DIR/"
